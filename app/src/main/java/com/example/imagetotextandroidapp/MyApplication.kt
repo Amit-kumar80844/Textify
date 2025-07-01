@@ -1,12 +1,7 @@
 package com.example.imagetotextandroidapp
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class MyApplication : Activity() {
-
-}
+@HiltAndroidApp
+class MyApplication : Application()

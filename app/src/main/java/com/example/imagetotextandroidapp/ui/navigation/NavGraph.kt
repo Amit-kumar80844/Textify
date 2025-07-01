@@ -4,5 +4,5 @@ sealed class NavGraph(
     val route: String
 ) {
     data object Splash : NavGraph("Splash")
-    data object Home : NavGraph("Home")
+    data object ImageExtractor : NavGraph("ImageExtractor")
 }
