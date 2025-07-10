@@ -1,52 +1,57 @@
 package com.example.imagetotextandroidapp.ui.screen.processVisualiser
-/*
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
+import kotlinx.coroutines.delay
 
 @Composable
-fun ProcessForImage() {
-    ProcessVisualScreen()
+fun ProcessForImage(navHostController: NavHostController,
+                    processVisualViewModel: ProcessVisualViewModel = hiltViewModel()) {
+    ProcessVisualScreen(processVisualViewModel)
 }
 
-@Preview(showSystemUi = false, showBackground = false)
+/**
+ * [onClick] should be recheck again
+ * */
+
 @Composable
-fun ProcessVisualScreen() {
+fun ProcessVisualScreen(processVisualViewModel: ProcessVisualViewModel) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
@@ -65,61 +70,79 @@ fun ProcessVisualScreen() {
                 contentDescription = "Process Image",
                 modifier = Modifier.size(150.dp)
             )
-            LinearDeterminateIndicator()
-            customText()
+            LinearDeterminateIndicator(processVisualViewModel)
+            CustomText()
             Spacer(modifier = Modifier.padding(40.dp))
+            Button(
+                onClick = {processVisualViewModel.cancelProcess()},/* here we are using to cancel process */
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth(0.9f)
+            ) {
+                Icon(Icons.Filled.Close, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cancel", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
+            }
         }
+        Spacer(modifier = Modifier.padding(2.dp))
+
     }
 }
 
 @Composable
-fun LinearDeterminateIndicator() {
-    var currentProgress by remember { mutableFloatStateOf(0.2f) }
-    val loading = remember { mutableStateOf(true) }
-    val scope = rememberCoroutineScope()
+fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(8.dp)
     ) {
-            LinearProgressIndicator(
-                progress = { currentProgress },
-                modifier = Modifier.fillMaxWidth()
+          LinearProgressIndicator(
+                progress = { processVisualViewModel.progress },
+                modifier = Modifier
+                    .fillMaxWidth()
                     .height(16.dp),
-                color = Color(color = 0xFF0E462B),
+                color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                 gapSize = 0.dp
-            )
+          )
     }
 }
 
 @Composable
-fun customText() {
-    val scope = rememberCoroutineScope()
-    var loading by remember { mutableStateOf(true) }
-    if (loading) {
-        scope.launch {
-            delay(3000)
-            loading = false
-        }
-    }
-    if (loading) {
+fun CustomText() {
         Row {
             Text(
                 text = "Extracting Text From Image",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                fontSize = 16.sp,
             )
-               Text(text = "",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground)
-        }
-    } else {
-        Text(
-            text = "Text Extraction Completed",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+            LoadingDotsAnimation()
     }
-}*/
+}
+
+@Composable
+fun LoadingDotsAnimation() {
+    var dotText by remember { mutableStateOf(".") }
+    LaunchedEffect(Unit) {
+        val dotStates = listOf(".  ", ".. ", "...")
+        while (true) {
+            dotText = dotStates[0]
+            delay(500)
+            dotText = dotStates[1]
+            delay(500)
+            dotText = dotStates[2]
+            delay(500)
+        }
+    }
+    Text(
+        text = dotText,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+}

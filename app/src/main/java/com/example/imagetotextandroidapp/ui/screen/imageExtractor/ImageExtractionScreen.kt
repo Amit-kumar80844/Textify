@@ -1,7 +1,7 @@
 package com.example.imagetotextandroidapp.ui.screen.imageExtractor
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +52,7 @@ import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
 
 @Composable
-fun ImageExtractionScreen(navController: NavHostController) {
+fun ImageExtractionScreen(navHostController: NavHostController) {
     /*hilt view model will here*/
     TextExtractorScreen()
 }
@@ -91,6 +90,7 @@ fun TextExtractorScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.surface) // Use surface for a cohesive background
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -103,7 +103,6 @@ fun TextExtractorScreen() {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -199,7 +198,7 @@ fun TextExtractorScreen() {
                     .fillMaxWidth(0.8f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ActionButton(icon = Icons.Filled.ThumbUp, label = "Copy") { /* after copy image shold bw changed Copy */ }
+                ActionButton(icon = Icons.Filled.ThumbUp, label = "Copy") { /* after copy image should bw changed Copy */ }
                 ActionButton(icon = Icons.Filled.Share, label = "Share") { /* Share */ }
                 ActionButton(icon = Icons.Filled.Refresh, label = "Try Again") { /* go back to select a new image as new app will opened */ }
             }
@@ -230,16 +229,7 @@ fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
 @Preview
 fun AppPreview() {
     ImageTOTextAndroidAppTheme {
-        ImageExtractionScreen(navController = NavHostController(LocalContext.current))
+        ImageExtractionScreen(NavHostController(LocalContext.current))
     }
 }
 
-@Composable
-@Preview
-fun AppPreviewdark() {
-    ImageTOTextAndroidAppTheme(
-        darkTheme = true
-    ) {
-        ImageExtractionScreen(navController = NavHostController(LocalContext.current))
-    }
-}

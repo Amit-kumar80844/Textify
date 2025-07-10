@@ -5,4 +5,6 @@ sealed class NavGraph(
 ) {
     data object Splash : NavGraph("Splash")
     data object ImageExtractor : NavGraph("ImageExtractor")
+    data object ProcessVisualiser : NavGraph("ProcessVisualiser")
+    data object ExtractedText : NavGraph("ExtractedText")
 }
