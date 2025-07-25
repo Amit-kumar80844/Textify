@@ -49,17 +49,18 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import com.example.imagetotextandroidapp.ui.navigation.NavGraph
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
 
 @Composable
 fun ImageExtractionScreen(navHostController: NavHostController) {
     /*hilt view model will here*/
-    TextExtractorScreen()
+    TextExtractorScreen(navHostController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextExtractorScreen() {
+fun TextExtractorScreen(navHostController: NavHostController) {
     val extractedText = remember { mutableStateOf("Extracted text will appear here.") }
     Column(
         modifier = Modifier

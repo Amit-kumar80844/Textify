@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.imagetotextandroidapp.ui.screen.camera.CameraPreviewScreen
 import com.example.imagetotextandroidapp.ui.screen.extractedText.ExtractedTextScreen
 import com.example.imagetotextandroidapp.ui.screen.imageExtractor.ImageExtractionScreen
 import com.example.imagetotextandroidapp.ui.screen.processVisualiser.ProcessForImage
@@ -14,7 +15,7 @@ fun Navigate(
     navHostController: NavHostController
 ) {
     /* for test start destination is not splash screen */
-    NavHost(navController = navHostController, startDestination = NavGraph.ProcessVisualiser.route) {
+    NavHost(navController = navHostController, startDestination =NavGraph.CameraPreview.route) {
         composable(route = NavGraph.Splash.route) {
             SplashScreen(navHostController)
         }
@@ -26,6 +27,9 @@ fun Navigate(
         }
         composable(route = NavGraph.ExtractedText.route) {
             ExtractedTextScreen(navHostController)
+        }
+        composable(route = NavGraph.CameraPreview.route){
+            CameraPreviewScreen()
         }
     }
 }
