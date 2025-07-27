@@ -8,4 +8,5 @@ sealed class NavGraph(
     data object ProcessVisualiser : NavGraph("ProcessVisualiser")
     data object ExtractedText : NavGraph("ExtractedText")
     data object CameraPreview : NavGraph("CameraPreview")
+    data object CropScreen : NavGraph("CropScreen")
 }

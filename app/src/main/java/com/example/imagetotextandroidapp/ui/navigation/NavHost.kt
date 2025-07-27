@@ -4,7 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.imagetotextandroidapp.ui.screen.camera.CameraPreviewScreen
+import com.example.imagetotextandroidapp.ui.screen.camera.CameraScreen
+import com.example.imagetotextandroidapp.ui.screen.camera.CropScreenHelper
 import com.example.imagetotextandroidapp.ui.screen.extractedText.ExtractedTextScreen
 import com.example.imagetotextandroidapp.ui.screen.imageExtractor.ImageExtractionScreen
 import com.example.imagetotextandroidapp.ui.screen.processVisualiser.ProcessForImage
@@ -29,7 +30,10 @@ fun Navigate(
             ExtractedTextScreen(navHostController)
         }
         composable(route = NavGraph.CameraPreview.route){
-            CameraPreviewScreen()
+            CameraScreen(navHostController)
+        }
+        composable(route = NavGraph.CropScreen.route) {
+             CropScreenHelper(navHostController)
         }
     }
 }
