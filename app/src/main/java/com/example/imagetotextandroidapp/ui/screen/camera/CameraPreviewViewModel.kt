@@ -9,8 +9,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.data.image.takeImage
+import com.example.imagetotextandroidapp.ui.navigation.NavGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import android.util.Log
 
 sealed class CropState {
     object Idle : CropState()
@@ -30,7 +32,7 @@ class CameraPreviewViewModel @Inject constructor() : ViewModel() {
     var cropState by mutableStateOf<CropState>(CropState.Idle)
         private set
 
-    fun setCroppedImage(bitmap: Bitmap) {
+    fun updateCroppedImage(bitmap: Bitmap) {
         croppedImage = bitmap
         cropState = CropState.Success
     }
@@ -49,15 +51,28 @@ class CameraPreviewViewModel @Inject constructor() : ViewModel() {
     }
 
     // Camera related methods
-    fun captureImage(context: Context, controller: LifecycleCameraController,navController: NavHostController) {
-        takeImage(context, controller) { bitmap ->
-            _capturedImage.postValue(bitmap)
+    fun captureImage(
+        context: Context,
+        controller: LifecycleCameraController,
+        navController: NavHostController
+    ) {
+        Log.d("CameraPreviewViewModel", "Capture Image Button clicked")
+        takeImage(navController, context, controller) { bitmap ->
+            Log.d("CameraPreviewViewModel", "onImageCaptured called with bitmap: ${bitmap.width}x${bitmap.height}")
+
+            // Set the captured image immediately
+            _capturedImage.value = bitmap
+
+            Log.d("CameraPreviewViewModel", "Captured image set, navigating to CropScreen")
+
+            // Navigate to crop screen
+            navController.navigate(NavGraph.CropScreen.route)
         }
-        navController.navigate("CropScreen")
     }
 
     fun clearCapturedImage() {
         _capturedImage.value = null
+        resetCrop() // Also reset crop state
     }
 
     fun getCapturedImage(): Bitmap? {
@@ -70,9 +85,11 @@ class CameraPreviewViewModel @Inject constructor() : ViewModel() {
 
     // Update captured image with cropped version
     fun updateCapturedImage(bitmap: Bitmap) {
-        _capturedImage.postValue(bitmap)
+        _capturedImage.value = bitmap // Use .value instead of .postValue for immediate update
     }
-    fun cancelCamera(navHostController: NavHostController){
+
+    fun cancelCamera(navHostController: NavHostController) {
+        // Clear the captured image before navigating back
         clearCapturedImage()
         navHostController.popBackStack()
     }

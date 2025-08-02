@@ -9,4 +9,5 @@ sealed class NavGraph(
     data object ExtractedText : NavGraph("ExtractedText")
     data object CameraPreview : NavGraph("CameraPreview")
     data object CropScreen : NavGraph("CropScreen")
+    data object ImagePreview : NavGraph("ImagePreview")
 }

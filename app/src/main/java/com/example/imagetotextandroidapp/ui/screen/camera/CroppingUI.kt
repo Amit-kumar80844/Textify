@@ -42,8 +42,6 @@ fun StartCroppingUI(
                             resultUri
                         )
                         onCropped(croppedBitmap)
-
-                        // Clean up temp file
                         context.contentResolver.delete(resultUri, null, null)
                     } else {
                         onError("Failed to get cropped image")

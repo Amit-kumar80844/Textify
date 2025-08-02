@@ -9,12 +9,15 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavHostController
 
 fun takeImage(
+    navHostController: NavHostController,
     context: Context,
     controller: LifecycleCameraController,
     onImageCaptured: (Bitmap) -> Unit
 ) {
+    Log.d("DEBUG", "888888888888888888888888888captureImage() called")
     controller.takePicture(
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageCapturedCallback() {
@@ -32,10 +35,10 @@ fun takeImage(
                     matrix,
                     true
                 )
-                onImageCaptured(bitmap)
+                Log.d("CameraCapture", "Image captured successfully")
                 image.close()
+                onImageCaptured(bitmap)
             }
-
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)
                 Log.e("CameraCapture", "Image capture failed: ${exception.message}", exception)

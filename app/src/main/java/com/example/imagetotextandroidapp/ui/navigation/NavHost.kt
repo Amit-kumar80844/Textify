@@ -8,6 +8,7 @@ import com.example.imagetotextandroidapp.ui.screen.camera.CameraScreen
 import com.example.imagetotextandroidapp.ui.screen.camera.CropScreenHelper
 import com.example.imagetotextandroidapp.ui.screen.extractedText.ExtractedTextScreen
 import com.example.imagetotextandroidapp.ui.screen.imageExtractor.ImageExtractionScreen
+import com.example.imagetotextandroidapp.ui.screen.imagePreview.ImagePreviewScreen
 import com.example.imagetotextandroidapp.ui.screen.processVisualiser.ProcessForImage
 import com.example.imagetotextandroidapp.ui.screen.splash.SplashScreen
 
@@ -16,7 +17,7 @@ fun Navigate(
     navHostController: NavHostController
 ) {
     /* for test start destination is not splash screen */
-    NavHost(navController = navHostController, startDestination =NavGraph.CameraPreview.route) {
+    NavHost(navController = navHostController, startDestination =NavGraph.ImageExtractor.route) {
         composable(route = NavGraph.Splash.route) {
             SplashScreen(navHostController)
         }
@@ -34,6 +35,9 @@ fun Navigate(
         }
         composable(route = NavGraph.CropScreen.route) {
              CropScreenHelper(navHostController)
+        }
+        composable(route = NavGraph.ImagePreview.route){
+            ImagePreviewScreen(navHostController)
         }
     }
 }

@@ -123,7 +123,7 @@ fun TextExtractorScreen(navHostController: NavHostController) {
                 }
 
                 OutlinedButton(
-                    onClick = { /* Take photo */ },
+                    onClick = { navHostController.navigate(NavGraph.CameraPreview.route)},
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
@@ -233,4 +233,3 @@ fun AppPreview() {
         ImageExtractionScreen(NavHostController(LocalContext.current))
     }
 }
-
