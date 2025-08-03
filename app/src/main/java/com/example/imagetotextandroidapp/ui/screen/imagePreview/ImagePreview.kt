@@ -24,11 +24,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImagePreviewScreen(
     navController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     val bitmap = navController.previousBackStackEntry?.savedStateHandle?.get<Bitmap>("capturedImage")
         ?: return // Ensure bitmap is not null

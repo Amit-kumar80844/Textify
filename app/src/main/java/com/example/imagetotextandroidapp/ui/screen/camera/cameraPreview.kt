@@ -19,18 +19,21 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.imagetotextandroidapp.R
+import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 
 @Composable
 fun CameraScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     val viewModel: CameraPreviewViewModel = hiltViewModel()
-    CameraPreviewScreen(viewModel, navController)
+    CameraPreviewScreen(viewModel,sharedViewModel, navController)
 }
 
 @Composable
 fun CameraPreviewScreen(
     viewModel: CameraPreviewViewModel,
+    sharedViewModel: SharedViewModel,
     navController: NavHostController
 ) {
     val context = LocalContext.current
@@ -57,7 +60,9 @@ fun CameraPreviewScreen(
             IconButton(
                 onClick = {
                     Log.d("CameraScreen", "Camera Button clicked")
-                    viewModel.captureImage(context, controller, navController)
+                    viewModel.captureImage(context, controller, navController){
+                        bitmap -> sharedViewModel.setImage(bitmap)
+                    }
                 }
             ) {
                 Icon(
@@ -68,6 +73,7 @@ fun CameraPreviewScreen(
             }
             IconButton(
                 onClick = {
+                    sharedViewModel.clearImage()
                     viewModel.cancelCamera(navController)
                 }
             ) {

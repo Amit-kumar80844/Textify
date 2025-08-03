@@ -1,4 +1,4 @@
-package com.example.imagetotextandroidapp.ui.screen.camera
+package com.example.imagetotextandroidapp.ui.screen.crop
 
 import android.app.Activity
 import android.graphics.Bitmap

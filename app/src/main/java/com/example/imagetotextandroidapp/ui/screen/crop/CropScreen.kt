@@ -1,4 +1,4 @@
-package com.example.imagetotextandroidapp.ui.screen.camera
+package com.example.imagetotextandroidapp.ui.screen.crop
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -16,21 +16,22 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import androidx.core.graphics.createBitmap
 import androidx.compose.runtime.livedata.observeAsState
+import kotlinx.coroutines.delay
 
 @Composable
 fun CropScreenHelper(
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
-    val viewModel: CameraPreviewViewModel = hiltViewModel()
-    val capturedImage by viewModel.capturedImage.observeAsState()
+    val viewModel: CropScreenViewModel = hiltViewModel()
+    val capturedImage by sharedViewModel.capturedImage.observeAsState()
 
     LaunchedEffect(capturedImage) {
-        Log.d("CropScreen", "CapturedImage state: ${capturedImage?.let { "${it.width}x${it.height}" } ?: "null"}")
+        Log.d(
+            "CropScreen",
+            "CapturedImage state: ${capturedImage?.let { "${it.width}x${it.height}" } ?: "null"}")
     }
 
     when {
@@ -46,7 +47,7 @@ fun CropScreenHelper(
                     CircularProgressIndicator()
                     Text("Loading image...")
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(3000)
+                        delay(3000)
                         Log.d("CropScreen", "Timeout - no image found, navigating back")
                         navHostController.popBackStack()
                     }
@@ -59,8 +60,12 @@ fun CropScreenHelper(
                 originalBitmap = capturedImage!!,
                 viewModel = viewModel,
                 onCropComplete = { croppedBitmap ->
-                    viewModel.updateCapturedImage(croppedBitmap)
-                    // Navigate to the next screen with the cropped image
+                    viewModel.setCapturedImage(croppedBitmap) { bitmap ->
+                        {
+                            sharedViewModel.setImage(bitmap)
+                            Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
+                        }
+                    }
                 },
                 onCancel = {
                     navHostController.popBackStack()
@@ -70,17 +75,10 @@ fun CropScreenHelper(
     }
 }
 
-@Preview
-@Composable
-fun CropScreenHelperPreview() {
-    val navHostController = rememberNavController()
-    CropScreenHelper(navHostController = navHostController)
-}
-
 @Composable
 fun CropScreen(
     originalBitmap: Bitmap,
-    viewModel: CameraPreviewViewModel = hiltViewModel(),
+    viewModel: CropScreenViewModel,
     onCropComplete: (Bitmap) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -135,6 +133,7 @@ fun CropScreen(
                 )
             }
         }
+
         is CropState.Error -> {
             CropErrorScreen(
                 error = state.message,
@@ -144,18 +143,6 @@ fun CropScreen(
         }
     }
 }
-
-@Preview
-@Composable
-fun CropScreenPreview() {
-    val originalBitmap = createBitmap(100, 100)
-    CropScreen(
-        originalBitmap = originalBitmap,
-        onCropComplete = {},
-        onCancel = {}
-    )
-}
-
 
 @Composable
 fun CroppedImagePreview(
@@ -222,18 +209,6 @@ fun CroppedImagePreview(
     }
 }
 
-@Preview
-@Composable
-fun CroppedImagePreviewPreview() {
-    val croppedBitmap = createBitmap(100, 100)
-    CroppedImagePreview(
-        croppedBitmap = croppedBitmap,
-        onAccept = {},
-        onRetry = {},
-        onCancel = {}
-    )
-}
-
 @Composable
 fun CropErrorScreen(
     error: String,
@@ -277,14 +252,4 @@ fun CropErrorScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun CropErrorScreenPreview() {
-    CropErrorScreen(
-        error = "Something went wrong during cropping.",
-        onRetry = {},
-        onCancel = {}
-    )
 }
