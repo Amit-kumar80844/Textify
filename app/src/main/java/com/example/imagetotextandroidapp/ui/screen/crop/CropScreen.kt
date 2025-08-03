@@ -3,6 +3,7 @@ package com.example.imagetotextandroidapp.ui.screen.crop
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -24,6 +25,22 @@ import kotlinx.coroutines.delay
 fun CropScreenHelper(
     navHostController: NavHostController,
     sharedViewModel: SharedViewModel
+){
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ){
+        CropScreenMain(
+            navHostController = navHostController,
+            sharedViewModel = sharedViewModel
+        )
+    }
+}
+
+@Composable
+fun CropScreenMain(
+    navHostController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     val viewModel: CropScreenViewModel = hiltViewModel()
     val capturedImage by sharedViewModel.capturedImage.observeAsState()
@@ -37,7 +54,8 @@ fun CropScreenHelper(
     when {
         capturedImage == null -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -167,7 +185,6 @@ fun CroppedImagePreview(
                 contentScale = ContentScale.Fit
             )
         }
-
         // Action buttons
         Row(
             modifier = Modifier
@@ -237,7 +254,6 @@ fun CropErrorScreen(
                     text = error,
                     style = MaterialTheme.typography.bodyMedium
                 )
-
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
