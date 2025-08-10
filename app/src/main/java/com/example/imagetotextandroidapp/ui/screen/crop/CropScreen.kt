@@ -1,7 +1,9 @@
 package com.example.imagetotextandroidapp.ui.screen.crop
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,6 +23,7 @@ import androidx.navigation.NavHostController
 import androidx.compose.runtime.livedata.observeAsState
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CropScreenHelper(
     navHostController: NavHostController,
@@ -37,6 +40,7 @@ fun CropScreenHelper(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CropScreenMain(
     navHostController: NavHostController,
@@ -93,6 +97,7 @@ fun CropScreenMain(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CropScreen(
     originalBitmap: Bitmap,

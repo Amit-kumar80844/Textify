@@ -2,23 +2,27 @@ package com.example.imagetotextandroidapp.ui.screen.crop
 
 import android.app.Activity
 import android.graphics.Bitmap
-import android.graphics.Color
+import android.graphics.ImageDecoder
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.imagetotextandroidapp.data.image.bitmapToFile
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun StartCroppingUI(
     bitmap: Bitmap,
@@ -27,81 +31,84 @@ fun StartCroppingUI(
     onCancel: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    var isLaunched by remember { mutableStateOf(false) }
+
+    // Correctly resolve theme colors within the Composable's scope before passing to uCrop.
+    val toolbarColor = MaterialTheme.colorScheme.primary.toArgb()
+    val statusBarColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
+    val activeControlsWidgetColor = MaterialTheme.colorScheme.primary.toArgb()
+    val toolbarWidgetColor = MaterialTheme.colorScheme.onPrimary.toArgb()
+    val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
 
     val cropLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         when (result.resultCode) {
             Activity.RESULT_OK -> {
-                try {
-                    val resultUri = UCrop.getOutput(result.data!!)
-                    if (resultUri != null) {
-                        val croppedBitmap = MediaStore.Images.Media.getBitmap(
-                            context.contentResolver,
-                            resultUri
-                        )
-                        onCropped(croppedBitmap)
-                        context.contentResolver.delete(resultUri, null, null)
-                    } else {
-                        onError("Failed to get cropped image")
-                    }
-                } catch (e: Exception) {
-                    Log.e("CropError", "Error processing cropped image", e)
-                    onError("Error processing cropped image: ${e.message}")
-                }
+                // Use safe calls to handle potentially null data
+                result.data?.let { intent ->
+                    UCrop.getOutput(intent)?.let { resultUri ->
+                        try {
+                            val source = ImageDecoder.createSource(context.contentResolver, resultUri)
+                            val croppedBitmap = ImageDecoder.decodeBitmap(source)
+                            onCropped(croppedBitmap)
+                            // Clean up the temporary cropped file
+                            context.contentResolver.delete(resultUri, null, null)
+                        } catch (e: Exception) {
+                            Log.e("CropResultError", "Error decoding cropped image", e)
+                            onError("Error processing cropped image: ${e.message}")
+                        }
+                    } ?: onError("Failed to retrieve cropped image URI.")
+                } ?: onError("No data returned from crop activity.")
             }
             Activity.RESULT_CANCELED -> {
                 onCancel()
             }
             UCrop.RESULT_ERROR -> {
-                val cropError = UCrop.getError(result.data!!)
-                Log.e("CropError", "UCrop error", cropError)
+                val cropError = result.data?.let { UCrop.getError(it) }
+                Log.e("UCropError", "UCrop error", cropError)
                 onError("Crop failed: ${cropError?.message ?: "Unknown error"}")
             }
         }
     }
 
+    // LaunchedEffect handles running this block once when the bitmap key changes.
     LaunchedEffect(bitmap) {
-        if (!isLaunched) {
-            isLaunched = true
-            try {
-                val inputUri = bitmapToFile(context, bitmap)
-                val outputFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
-                val outputUri = Uri.fromFile(outputFile)
+        try {
+            val inputUri = bitmapToFile(context, bitmap)
+            val outputFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
+            val outputUri = Uri.fromFile(outputFile)
 
-                val uCropOptions = UCrop.Options().apply {
-                    // UI customizations
-                    setFreeStyleCropEnabled(true)
-                    setHideBottomControls(false)
-                    setShowCropFrame(true)
-                    setShowCropGrid(true)
+            val uCropOptions = UCrop.Options().apply {
+                setFreeStyleCropEnabled(true)
+                setHideBottomControls(false)
+                setShowCropFrame(true)
+                setShowCropGrid(true)
 
-                    // Quality settings
-                    setCompressionQuality(90)
-                    setMaxBitmapSize(2048)
-
-                    // Colors (optional - customize to match your app theme)
-                    setToolbarColor(Color.BLACK)
-                    setStatusBarColor(Color.BLACK)
-                    setActiveControlsWidgetColor(Color.WHITE)
-                }
-
-                val intent = UCrop.of(inputUri, outputUri)
-                    .withOptions(uCropOptions)
-                    .getIntent(context)
-
-                cropLauncher.launch(intent)
-            } catch (e: Exception) {
-                Log.e("CropError", "Error starting crop", e)
-                onError("Failed to start crop: ${e.message}")
+                setCompressionQuality(90)
+                setMaxBitmapSize(2048)
+                setToolbarColor(toolbarColor)
+                setStatusBarColor(statusBarColor)
+                setActiveControlsWidgetColor(activeControlsWidgetColor)
+                setToolbarWidgetColor(toolbarWidgetColor)
+                setRootViewBackgroundColor(backgroundColor)
+                setToolbarTitle("Crop Image")
             }
+
+            val intent = UCrop.of(inputUri, outputUri)
+                .withOptions(uCropOptions)
+                .getIntent(context)
+
+            cropLauncher.launch(intent)
+        } catch (e: Exception) {
+            Log.e("CropStartError", "Error starting crop activity", e)
+            onError("Failed to start crop: ${e.message}")
         }
     }
 
-    // Loading UI while crop is opening
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -111,7 +118,8 @@ fun StartCroppingUI(
             CircularProgressIndicator()
             Text(
                 text = "Opening Crop Editor...",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
