@@ -52,7 +52,8 @@ fun CropScreenMain(
     LaunchedEffect(capturedImage) {
         Log.d(
             "CropScreen",
-            "CapturedImage state: ${capturedImage?.let { "${it.width}x${it.height}" } ?: "null"}")
+            "CapturedImage state: ${capturedImage?.let { "${it.width}x${it.height}" } ?: "null"}"
+        )
     }
 
     when {

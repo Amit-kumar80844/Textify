@@ -1,5 +1,7 @@
 package com.example.imagetotextandroidapp.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -14,6 +16,7 @@ import com.example.imagetotextandroidapp.ui.screen.imagePreview.ImagePreviewScre
 import com.example.imagetotextandroidapp.ui.screen.processVisualiser.ProcessForImage
 import com.example.imagetotextandroidapp.ui.screen.splash.SplashScreen
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun Navigate(
     navHostController: NavHostController
@@ -26,7 +29,7 @@ fun Navigate(
             SplashScreen(navHostController)
         }
         composable(route = NavGraph.ImageExtractor.route) {
-            ImageExtractionScreen(navHostController)
+            ImageExtractionScreen(navHostController,sharedImageViewModel)
         }
         composable(route = NavGraph.ProcessVisualiser.route) {
             ProcessForImage(navHostController)

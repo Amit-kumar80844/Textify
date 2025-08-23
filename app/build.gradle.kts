@@ -44,6 +44,9 @@ android {
     dependenciesInfo {
         includeInApk = true
     }
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
 }
 
 // ✅ Modern Kotlin JVM target for Android
@@ -101,4 +104,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     //Live data
     implementation (libs.androidx.runtime.livedata)
+    //coil
+    implementation(libs.coil.compose)
 }

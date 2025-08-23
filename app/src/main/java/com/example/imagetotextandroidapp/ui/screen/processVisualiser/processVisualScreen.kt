@@ -30,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.imagetotextandroidapp.R
 import kotlinx.coroutines.delay
 
@@ -42,6 +44,15 @@ fun ProcessForImage(navHostController: NavHostController,
                     processVisualViewModel: ProcessVisualViewModel = hiltViewModel()) {
     ProcessVisualScreen(processVisualViewModel)
 }
+
+@Preview
+@Composable
+fun ProcessForImagePreview() {
+    val navHostController = rememberNavController()
+    val processVisualViewModel = ProcessVisualViewModel()
+    ProcessForImage(navHostController = navHostController, processVisualViewModel = processVisualViewModel)
+}
+
 
 /**
  * [onClick] should be recheck again
@@ -91,6 +102,14 @@ fun ProcessVisualScreen(processVisualViewModel: ProcessVisualViewModel) {
     }
 }
 
+@Preview
+@Composable
+fun ProcessVisualScreenPreview() {
+    val processVisualViewModel = ProcessVisualViewModel()
+    ProcessVisualScreen(processVisualViewModel = processVisualViewModel)
+}
+
+
 @Composable
 fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
     Column(
@@ -112,6 +131,13 @@ fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
     }
 }
 
+@Preview
+@Composable
+fun LinearDeterminateIndicatorPreview() {
+    val processVisualViewModel = ProcessVisualViewModel()
+    LinearDeterminateIndicator(processVisualViewModel = processVisualViewModel)
+}
+
 @Composable
 fun CustomText() {
         Row {
@@ -124,6 +150,12 @@ fun CustomText() {
             )
             LoadingDotsAnimation()
     }
+}
+
+@Preview
+@Composable
+fun CustomTextPreview() {
+    CustomText()
 }
 
 @Composable
@@ -145,4 +177,10 @@ fun LoadingDotsAnimation() {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onBackground
     )
+}
+
+@Preview
+@Composable
+fun LoadingDotsAnimationPreview() {
+    LoadingDotsAnimation()
 }

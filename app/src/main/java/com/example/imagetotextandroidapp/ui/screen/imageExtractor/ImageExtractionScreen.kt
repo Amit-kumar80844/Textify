@@ -1,5 +1,8 @@
 package com.example.imagetotextandroidapp.ui.screen.imageExtractor
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.*
 import androidx.compose.foundation.border
@@ -47,20 +50,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.ui.navigation.NavGraph
+import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
 
 @Composable
-fun ImageExtractionScreen(navHostController: NavHostController) {
-    /*hilt view model will here*/
-    TextExtractorScreen(navHostController)
+fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel: SharedViewModel) {
+    val viewModel: ImageExtractionViewModel = hiltViewModel()
+    val imageState by viewModel.imageState.observeAsState(ImageState.IsIdle)
+
+    when (imageState) {
+        is ImageState.IsIdle -> {
+            TextExtractorScreen(navHostController, viewModel)
+        }
+        is ImageState.IsImageSelecting -> {
+            val context = LocalContext.current
+            PickImage(viewModel = viewModel/*, context = context*/)
+        }
+        is ImageState.IsImageSelected -> {
+            val context = LocalContext.current
+            LaunchedEffect(Unit) {
+                sharedViewModel.setImage(
+                    viewModel.selectImageUri?.let {
+                        viewModel.uriToBitmap(it, context)
+                    } ?: return@LaunchedEffect
+                )
+                navHostController.navigate(NavGraph.CropScreen.route)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextExtractorScreen(navHostController: NavHostController) {
+fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageExtractionViewModel) {
     val extractedText = remember { mutableStateOf("Extracted text will appear here.") }
     Column(
         modifier = Modifier
@@ -110,20 +139,34 @@ fun TextExtractorScreen(navHostController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = { /* Select image */ },
+                    onClick = {
+                        viewModel.setImageState(ImageState.IsImageSelecting)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .height(56.dp)
                         .fillMaxWidth(0.8f)
                 ) {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Select Image", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
+                    Text(
+                        "Select Image",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 18.sp
+                    )
                 }
 
                 OutlinedButton(
-                    onClick = { navHostController.navigate(NavGraph.CameraPreview.route)},
+                    onClick = {
+                        viewModel.manageCameraPermission()
+                        if (viewModel.hasCameraPermission())
+                            navHostController.navigate(NavGraph.CameraPreview.route)
+                    },
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
@@ -148,10 +191,18 @@ fun TextExtractorScreen(navHostController: NavHostController) {
                     .fillMaxWidth(0.8f)
                     .aspectRatio(16f / 9f)
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)), // Lighter background for placeholder
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        RoundedCornerShape(12.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Filled.Info, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(48.dp))
+                Icon(
+                    Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(48.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -165,7 +216,11 @@ fun TextExtractorScreen(navHostController: NavHostController) {
                     .height(48.dp)
                     .fillMaxWidth(0.8f)
             ) {
-                Icon(Icons.Filled.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(
+                    Icons.Filled.Edit,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Extract Text", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
             }
@@ -190,18 +245,23 @@ fun TextExtractorScreen(navHostController: NavHostController) {
                         .height(120.dp),
                 )
             }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             // Action Buttons
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
             ) {
-                ActionButton(icon = Icons.Filled.ThumbUp, label = "Copy") { /* after copy image should bw changed Copy */ }
+                ActionButton(
+                    icon = Icons.Filled.ThumbUp,
+                    label = "Copy"
+                ) { /* after copy image should bw changed Copy */ }
                 ActionButton(icon = Icons.Filled.Share, label = "Share") { /* Share */ }
-                ActionButton(icon = Icons.Filled.Refresh, label = "Try Again") { /* go back to select a new image as new app will opened */ }
+                ActionButton(
+                    icon = Icons.Filled.Refresh,
+                    label = "Try Again"
+                ) { /* go back to select a new image as new app will opened */ }
             }
         }
     }
@@ -217,7 +277,9 @@ fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+        modifier = Modifier
+            .wrapContentWidth(Alignment.CenterHorizontally)
+            .padding(8.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
@@ -226,10 +288,35 @@ fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
     }
 }
 
+
+@Composable
+fun PickImage(
+    viewModel: ImageExtractionViewModel
+) {
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.selectImageUri = uri
+                viewModel.setImageState(ImageState.IsImageSelected)
+            } else {
+                // User cancelled, go back to idle state
+                viewModel.setImageState(ImageState.IsIdle)
+            }
+        }
+    )
+
+    // Use LaunchedEffect to ensure the launcher is fully initialized
+    LaunchedEffect(Unit) {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+}
 @Composable
 @Preview
 fun AppPreview() {
     ImageTOTextAndroidAppTheme {
-        ImageExtractionScreen(NavHostController(LocalContext.current))
+        TextExtractorScreen(NavHostController(LocalContext.current), hiltViewModel())
     }
 }
