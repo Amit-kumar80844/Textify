@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import com.example.imagetotextandroidapp.data.image.bitmapToFile
 import com.yalantis.ucrop.UCrop
 import java.io.File
@@ -32,7 +33,7 @@ fun StartCroppingUI(
 ) {
     val context = LocalContext.current
 
-    // Correctly resolve theme colors within the Composable's scope before passing to uCrop.
+    // Theme colors for UCrop
     val toolbarColor = MaterialTheme.colorScheme.primary.toArgb()
     val statusBarColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
     val activeControlsWidgetColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -44,14 +45,14 @@ fun StartCroppingUI(
     ) { result ->
         when (result.resultCode) {
             Activity.RESULT_OK -> {
-                // Use safe calls to handle potentially null data
                 result.data?.let { intent ->
                     UCrop.getOutput(intent)?.let { resultUri ->
                         try {
                             val source = ImageDecoder.createSource(context.contentResolver, resultUri)
                             val croppedBitmap = ImageDecoder.decodeBitmap(source)
                             onCropped(croppedBitmap)
-                            // Clean up the temporary cropped file
+
+                            // cleanup cropped temp file
                             context.contentResolver.delete(resultUri, null, null)
                         } catch (e: Exception) {
                             Log.e("CropResultError", "Error decoding cropped image", e)
@@ -71,12 +72,16 @@ fun StartCroppingUI(
         }
     }
 
-    // LaunchedEffect handles running this block once when the bitmap key changes.
     LaunchedEffect(bitmap) {
         try {
             val inputUri = bitmapToFile(context, bitmap)
+
             val outputFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
-            val outputUri = Uri.fromFile(outputFile)
+            val outputUri: Uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                outputFile
+            )
 
             val uCropOptions = UCrop.Options().apply {
                 setFreeStyleCropEnabled(true)

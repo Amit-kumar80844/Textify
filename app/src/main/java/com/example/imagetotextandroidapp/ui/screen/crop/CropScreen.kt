@@ -255,7 +255,6 @@ fun CropErrorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.error
                 )
-
                 Text(
                     text = error,
                     style = MaterialTheme.typography.bodyMedium

@@ -70,7 +70,7 @@ fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel:
             TextExtractorScreen(navHostController, viewModel)
         }
         is ImageState.IsImageSelecting -> {
-            val context = LocalContext.current
+     /*       val context = LocalContext.current*/
             PickImage(viewModel = viewModel/*, context = context*/)
         }
         is ImageState.IsImageSelected -> {
@@ -81,6 +81,8 @@ fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel:
                         viewModel.uriToBitmap(it, context)
                     } ?: return@LaunchedEffect
                 )
+                // Reset state to idle after setting the image
+                viewModel.setImageState(ImageState.IsIdle)
                 navHostController.navigate(NavGraph.CropScreen.route)
             }
         }
@@ -274,7 +276,7 @@ fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.onBackground,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
         modifier = Modifier
