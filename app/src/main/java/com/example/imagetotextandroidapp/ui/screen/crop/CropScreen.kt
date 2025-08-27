@@ -4,9 +4,11 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -21,7 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import com.example.imagetotextandroidapp.R
 import kotlinx.coroutines.delay
+import androidx.core.graphics.createBitmap
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -84,10 +92,8 @@ fun CropScreenMain(
                 viewModel = viewModel,
                 onCropComplete = { croppedBitmap ->
                     viewModel.setCapturedImage(croppedBitmap) { bitmap ->
-                        {
-                            sharedViewModel.setImage(bitmap)
-                            Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
-                        }
+                        sharedViewModel.setImage(bitmap)
+                        Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
                     }
                 },
                 onCancel = {
@@ -168,15 +174,25 @@ fun CropScreen(
     }
 }
 
+/**
+ * Displays a preview of a cropped image and provides actions to accept, retry, or cancel.
+ *
+ * @param croppedBitmap The [Bitmap] of the cropped image to display.
+ * @param onAccept Callback invoked when the user accepts the cropped image.
+ * @param onRetry Callback invoked when the user wants to retry the cropping operation.
+ * @param onCancel Callback invoked when the user cancels the operation.
+ * @param modifier Optional [Modifier] for this composable.
+ */
 @Composable
 fun CroppedImagePreview(
     croppedBitmap: Bitmap,
     onAccept: () -> Unit,
     onRetry: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         // Image preview
         Box(
@@ -186,51 +202,138 @@ fun CroppedImagePreview(
         ) {
             Image(
                 bitmap = croppedBitmap.asImageBitmap(),
-                contentDescription = "Cropped image preview",
+                contentDescription = stringResource(R.string.cropped_image_preview_description),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
         }
+
         // Action buttons
-        Row(
+        CroppedImageActionButtons(
+            onAccept = onAccept,
+            onRetry = onRetry,
+            onCancel = onCancel,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(4.dp)
+        )
+    }
+}
+
+/**
+ * A row of action buttons for the cropped image preview.
+ *
+ * @param onAccept Callback for the accept action.
+ * @param onRetry Callback for the retry action.
+ * @param onCancel Callback for the cancel action.
+ * @param modifier Optional [Modifier] for this composable.
+ */
+// Ensure you have the correct Material 3 imports
+
+// ... other necessary imports like Row, Modifier, Color, etc.
+
+@Composable
+fun CroppedImageActionButtons(
+    onAccept: () -> Unit,
+    onRetry: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val buttonShape = RoundedCornerShape(50) 
+
+        // Cancel and Retry Buttons
+        @Composable
+        fun SecondaryButton(
+            onClick: () -> Unit,
+            imageVector: ImageVector,
+            contentDescription: String,
+            text: String
         ) {
             OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f)
+                onClick = onClick,
+                modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.surface, shape = buttonShape)
+                    .weight(1f)
+                    .height(48.dp),
+                shape = buttonShape,
+                // Use a theme-aware color for the border
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface // Color for text and icon
+                )
             ) {
-                Icon(Icons.Default.Close, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cancel")
+                Icon(imageVector = imageVector, contentDescription = contentDescription)
+                Spacer(Modifier.width(8.dp))
+                Text(text)
             }
+        }
 
-            Spacer(modifier = Modifier.width(8.dp))
+        SecondaryButton(
+            onClick = onCancel,
+            imageVector = Icons.Filled.Close,
+            contentDescription = stringResource(R.string.cancel_action_description),
+            text = stringResource(R.string.cancel_button_text)
+        )
 
-            OutlinedButton(
-                onClick = onRetry,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Retry")
-            }
+        SecondaryButton(
+            onClick = onRetry,
+            imageVector = Icons.Filled.Refresh,
+            contentDescription = stringResource(R.string.retry_action_description),
+            text = stringResource(R.string.retry_button_text)
+        )
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = onAccept,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Check, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Accept")
-            }
+        // Accept Button
+        Button(
+            onClick = onAccept,
+            modifier = Modifier
+                .weight(1f),
+            shape = buttonShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = stringResource(R.string.accept_action_description)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.accept_button_text), style = MaterialTheme.typography.bodySmall)
         }
     }
 }
+@Preview
+@Composable
+fun CroppedImageActionButtonsPreview() {
+    MaterialTheme {
+        CroppedImageActionButtons(
+            onAccept = { /* Dummy action */ },
+            onRetry = { /* Dummy action */ },
+            onCancel = { /* Dummy action */ }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CroppedImagePreviewPreview() {
+    val dummyBitmap = createBitmap(100, 100)
+    MaterialTheme {
+        CroppedImagePreview(
+            croppedBitmap = dummyBitmap,
+            onAccept = { /* Dummy action */ },
+            onRetry = { /* Dummy action */ },
+            onCancel = { /* Dummy action */ }
+        )
+    }
+}
+
 
 @Composable
 fun CropErrorScreen(

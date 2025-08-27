@@ -69,6 +69,7 @@ fun CameraPreviewScreen(
                     painter = painterResource(id = R.drawable.outline_photo_camera_24),
                     contentDescription = "Capture Image",
                     Modifier.size(130.dp)
+                        .background(MaterialTheme.colorScheme.secondary)
                 )
             }
             IconButton(
@@ -81,6 +82,7 @@ fun CameraPreviewScreen(
                     painter = painterResource(id = R.drawable.baseline_cancel_24),
                     contentDescription = "Cancel",
                     Modifier.size(130.dp)
+                        .background(MaterialTheme.colorScheme.secondary)
                 )
             }
         }

@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,7 +67,7 @@ fun ExtractedTextContent(
         // Action Buttons
         Row(
             modifier = Modifier
-                .fillMaxWidth(0.8f),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             ActionButton(icon = Icons.Filled.ThumbUp, label = "Copy") { /* after copy image shold bw changed Copy */ }
@@ -74,3 +76,19 @@ fun ExtractedTextContent(
         }
     }
 }
+
+@Preview
+@Composable
+fun ExtractedTextScreenPreview() {
+    val navHostController = NavHostController(LocalContext.current)
+    val viewModel = ExtractedTextViewModel()
+    ExtractedTextScreen(navHostController, viewModel)
+}
+
+@Preview
+@Composable
+fun ExtractedTextContentPreview() {
+    val viewModel = ExtractedTextViewModel()
+    ExtractedTextContent(viewModel)
+}
+

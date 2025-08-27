@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">ImageTOTextAndroidApp</string>
+    <string name="cropped_image_preview_description">Preview of the cropped image</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="retry_button_text">Retry</string>
+    <string name="accept_button_text">Accept</string>
+    <string name="cancel_action_description">Cancel cropping</string>
+    <string name="retry_action_description">Retry cropping</string>
+    <string name="accept_action_description">Accept cropped image</string>
 </resources>

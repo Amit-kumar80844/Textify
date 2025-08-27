@@ -276,8 +276,8 @@ fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.onBackground,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant // Or MaterialTheme.colorScheme.primary for more emphasis
         ),
         modifier = Modifier
             .wrapContentWidth(Alignment.CenterHorizontally)
