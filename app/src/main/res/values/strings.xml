@@ -1,4 +1,5 @@
 <resources>
+    <string name="preview_screen_header">Preview Image</string>
     <string name="app_name">ImageTOTextAndroidApp</string>
     <string name="cropped_image_preview_description">Preview of the cropped image</string>
     <string name="cancel_button_text">Cancel</string>

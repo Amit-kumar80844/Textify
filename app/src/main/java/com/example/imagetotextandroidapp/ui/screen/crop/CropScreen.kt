@@ -193,7 +193,19 @@ fun CroppedImagePreview(
 ) {
     Column(
         modifier = modifier.fillMaxSize()
+
     ) {
+        // Header
+        Text(
+            text = "Accept cropped image",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.outline)
+                .padding(16.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+
         // Image preview
         Box(
             modifier = Modifier
@@ -228,7 +240,6 @@ fun CroppedImagePreview(
  * @param onCancel Callback for the cancel action.
  * @param modifier Optional [Modifier] for this composable.
  */
-// Ensure you have the correct Material 3 imports
 
 // ... other necessary imports like Row, Modifier, Color, etc.
 
@@ -252,12 +263,13 @@ fun CroppedImageActionButtons(
             onClick: () -> Unit,
             imageVector: ImageVector,
             contentDescription: String,
-            text: String
+            text: String,
+            color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface
         ) {
             OutlinedButton(
                 onClick = onClick,
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.surface, shape = buttonShape)
+                    .background(color = color, shape = buttonShape)
                     .weight(1f)
                     .height(48.dp),
                 shape = buttonShape,
@@ -277,18 +289,19 @@ fun CroppedImageActionButtons(
             onClick = onCancel,
             imageVector = Icons.Filled.Close,
             contentDescription = stringResource(R.string.cancel_action_description),
-            text = stringResource(R.string.cancel_button_text)
+            text = stringResource(R.string.cancel_button_text),
+            color = MaterialTheme.colorScheme.error
         )
 
-        SecondaryButton(
-            onClick = onRetry,
-            imageVector = Icons.Filled.Refresh,
-            contentDescription = stringResource(R.string.retry_action_description),
-            text = stringResource(R.string.retry_button_text)
-        )
+//        SecondaryButton(
+//            onClick = onRetry,
+//            imageVector = Icons.Filled.Refresh,
+//            contentDescription = stringResource(R.string.retry_action_description),
+//            text = stringResource(R.string.retry_button_text)
+//        )
 
         // Accept Button
-        Button(
+       /* Button(
             onClick = onAccept,
             modifier = Modifier
                 .weight(1f),
@@ -305,7 +318,14 @@ fun CroppedImageActionButtons(
             )
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.accept_button_text), style = MaterialTheme.typography.bodySmall)
-        }
+        }*/
+        SecondaryButton(
+            onClick = onAccept,
+            imageVector = Icons.Filled.Check,
+            contentDescription = stringResource(R.string.accept_action_description),
+            text = stringResource(R.string.accept_button_text),
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 @Preview
