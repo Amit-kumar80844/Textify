@@ -21,7 +21,6 @@ import com.example.imagetotextandroidapp.ui.screen.splash.SplashScreen
 fun Navigate(
     navHostController: NavHostController
 ) {
-    // This ViewModel will be shared across all screens
     val sharedImageViewModel: SharedViewModel = hiltViewModel()
 
     NavHost(navController = navHostController, startDestination = NavGraph.ImageExtractor.route) {
@@ -32,10 +31,10 @@ fun Navigate(
             ImageExtractionScreen(navHostController,sharedImageViewModel)
         }
         composable(route = NavGraph.ProcessVisualiser.route) {
-            ProcessForImage(navHostController)
+            ProcessForImage(navHostController, sharedImageViewModel)
         }
         composable(route = NavGraph.ExtractedText.route) {
-            ExtractedTextScreen(navHostController)
+            ExtractedTextScreen(navHostController,sharedImageViewModel)
         }
         // shared screens here
         composable(route = NavGraph.CameraPreview.route) {

@@ -7,29 +7,45 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
 import kotlinx.coroutines.delay
-import androidx.core.graphics.createBitmap
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -90,11 +106,13 @@ fun CropScreenMain(
             CropScreen(
                 originalBitmap = capturedImage!!,
                 viewModel = viewModel,
+                // after cropping we are setting the cropped image to sharedViewModel
                 onCropComplete = { croppedBitmap ->
                     viewModel.setCapturedImage(croppedBitmap) { bitmap ->
                         sharedViewModel.setImage(bitmap)
                         Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
                     }
+                    viewModel.navigateToProcessScreen(navHostController)
                 },
                 onCancel = {
                     navHostController.popBackStack()
@@ -116,7 +134,7 @@ fun CropScreen(
     val croppedImage = viewModel.croppedImage
 
     when (val state = cropState) {
-        is CropState.Idle -> {
+     /*   is CropState.Idle -> {
             LaunchedEffect(Unit) {
                 viewModel.startCropping()
             }
@@ -132,7 +150,7 @@ fun CropScreen(
                     onCancel()
                 }
             )
-        }
+        }*/
 
         is CropState.Cropping -> {
             StartCroppingUI(
@@ -148,7 +166,7 @@ fun CropScreen(
                 }
             )
         }
-
+// we have here the cropped image
         is CropState.Success -> {
             croppedImage?.let { bitmap ->
                 CroppedImagePreview(
@@ -179,7 +197,7 @@ fun CropScreen(
  *
  * @param croppedBitmap The [Bitmap] of the cropped image to display.
  * @param onAccept Callback invoked when the user accepts the cropped image.
- * @param onRetry Callback invoked when the user wants to retry the cropping operation.
+ * @param onRetry Callback invoked when the server wants to retry the cropping operation.
  * @param onCancel Callback invoked when the user cancels the operation.
  * @param modifier Optional [Modifier] for this composable.
  */
@@ -223,7 +241,6 @@ fun CroppedImagePreview(
         // Action buttons
         CroppedImageActionButtons(
             onAccept = onAccept,
-            onRetry = onRetry,
             onCancel = onCancel,
             modifier = Modifier
                 .fillMaxWidth()
@@ -236,17 +253,15 @@ fun CroppedImagePreview(
  * A row of action buttons for the cropped image preview.
  *
  * @param onAccept Callback for the accept action.
- * @param onRetry Callback for the retry action.
  * @param onCancel Callback for the cancel action.
  * @param modifier Optional [Modifier] for this composable.
  */
 
-// ... other necessary imports like Row, Modifier, Color, etc.
 
 @Composable
 fun CroppedImageActionButtons(
     onAccept: () -> Unit,
-    onRetry: () -> Unit,
+
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -292,33 +307,6 @@ fun CroppedImageActionButtons(
             text = stringResource(R.string.cancel_button_text),
             color = MaterialTheme.colorScheme.error
         )
-
-//        SecondaryButton(
-//            onClick = onRetry,
-//            imageVector = Icons.Filled.Refresh,
-//            contentDescription = stringResource(R.string.retry_action_description),
-//            text = stringResource(R.string.retry_button_text)
-//        )
-
-        // Accept Button
-       /* Button(
-            onClick = onAccept,
-            modifier = Modifier
-                .weight(1f),
-            shape = buttonShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = stringResource(R.string.accept_action_description)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.accept_button_text), style = MaterialTheme.typography.bodySmall)
-        }*/
         SecondaryButton(
             onClick = onAccept,
             imageVector = Icons.Filled.Check,
@@ -334,7 +322,6 @@ fun CroppedImageActionButtonsPreview() {
     MaterialTheme {
         CroppedImageActionButtons(
             onAccept = { /* Dummy action */ },
-            onRetry = { /* Dummy action */ },
             onCancel = { /* Dummy action */ }
         )
     }

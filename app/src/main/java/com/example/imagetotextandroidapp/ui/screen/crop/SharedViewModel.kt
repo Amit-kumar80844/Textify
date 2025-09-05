@@ -14,8 +14,14 @@ class SharedViewModel @Inject constructor() : ViewModel() {
     private val _capturedImage = MutableLiveData<Bitmap?>()
     val capturedImage: LiveData<Bitmap?> = _capturedImage
 
+    private val _textFromImage = MutableLiveData<String>()
+    var textFromImage: LiveData<String> = _textFromImage
+
     fun setImage(bitmap: Bitmap) {
         _capturedImage.value = bitmap
+    }
+    fun updateTextFromImage(text: String) {
+        _textFromImage.value = text
     }
 
     fun clearImage() {

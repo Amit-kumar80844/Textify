@@ -1,5 +1,6 @@
 package com.example.imagetotextandroidapp.ui.screen.processVisualiser
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,28 +37,52 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.imagetotextandroidapp.R
+import com.example.imagetotextandroidapp.ui.navigation.NavGraph
+import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProcessForImage(navHostController: NavHostController,
-                    processVisualViewModel: ProcessVisualViewModel = hiltViewModel()) {
-    ProcessVisualScreen(processVisualViewModel)
+fun ProcessForImage(navHostController: NavHostController,sharedViewModel: SharedViewModel) {
+    val  processVisualViewModel: ProcessVisualViewModel = hiltViewModel()
+    val uiState by processVisualViewModel.uiState.collectAsState()
+    when (uiState) {
+        is ProcessVisualState.Progress -> {
+            val progressValue = (uiState as ProcessVisualState.Progress).value
+            LaunchedEffect(Unit) {
+                processVisualViewModel.processImageToText(sharedViewModel.capturedImage.value!!)
+            }
+            LaunchedEffect(progressValue) {
+                if (progressValue >= 1.0f) {
+                    processVisualViewModel.processSuccess()
+                }
+            }
+            ProcessVisualScreen(processVisualViewModel)
+        }
+        is ProcessVisualState.IsCancel -> {
+            processVisualViewModel.cancelProcess()
+            navHostController.popBackStack()
+        }
+
+        is ProcessVisualState.IsError -> {
+            val errorMessage = (uiState as ProcessVisualState.IsError).value
+            ErrorScreen(errorMessage)
+            LaunchedEffect(Unit) {
+                delay(3000)
+                navHostController.popBackStack()
+            }
+        }
+        is ProcessVisualState.IsSuccess -> {
+            val extractedText by processVisualViewModel.extractedText.collectAsState()
+            LaunchedEffect(Unit) {
+                sharedViewModel.updateTextFromImage(extractedText)
+                navHostController.popBackStack()
+                Log.d("SuccessScreen", "Extracted Text: $extractedText")
+                navHostController.navigate(NavGraph.ExtractedText.route)
+            }
+        }
+    }
 }
-
-@Preview
-@Composable
-fun ProcessForImagePreview() {
-    val navHostController = rememberNavController()
-    val processVisualViewModel = ProcessVisualViewModel()
-    ProcessForImage(navHostController = navHostController, processVisualViewModel = processVisualViewModel)
-}
-
-
-/**
- * [onClick] should be recheck again
- * */
 
 @Composable
 fun ProcessVisualScreen(processVisualViewModel: ProcessVisualViewModel) {
@@ -98,20 +124,20 @@ fun ProcessVisualScreen(processVisualViewModel: ProcessVisualViewModel) {
             }
         }
         Spacer(modifier = Modifier.padding(2.dp))
-
     }
 }
 
 @Preview
 @Composable
 fun ProcessVisualScreenPreview() {
-    val processVisualViewModel = ProcessVisualViewModel()
+    val processVisualViewModel: ProcessVisualViewModel = hiltViewModel()
     ProcessVisualScreen(processVisualViewModel = processVisualViewModel)
 }
 
 
 @Composable
 fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
+    val progress by processVisualViewModel.progress.collectAsState()
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,7 +146,7 @@ fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
             .padding(8.dp)
     ) {
           LinearProgressIndicator(
-                progress = { processVisualViewModel.progress },
+                progress = { progress},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(16.dp),
@@ -129,13 +155,6 @@ fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
                 gapSize = 0.dp
           )
     }
-}
-
-@Preview
-@Composable
-fun LinearDeterminateIndicatorPreview() {
-    val processVisualViewModel = ProcessVisualViewModel()
-    LinearDeterminateIndicator(processVisualViewModel = processVisualViewModel)
 }
 
 @Composable
@@ -150,12 +169,6 @@ fun CustomText() {
             )
             LoadingDotsAnimation()
     }
-}
-
-@Preview
-@Composable
-fun CustomTextPreview() {
-    CustomText()
 }
 
 @Composable
@@ -179,8 +192,27 @@ fun LoadingDotsAnimation() {
     )
 }
 
-@Preview
 @Composable
-fun LoadingDotsAnimationPreview() {
-    LoadingDotsAnimation()
+fun ErrorScreen(errorText: String = "An error occurred during processing.") {
+    Log.e("ErrorScreen", "Error: $errorText")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(R.drawable.outline_error_24),
+            contentDescription = "Error",
+            modifier = Modifier.size(150.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = errorText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 16.sp
+        )
+    }
 }

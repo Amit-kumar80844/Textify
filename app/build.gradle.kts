@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -100,5 +101,5 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.coil.compose)
 
-    implementation(project(":sdk"))
+    implementation(libs.text.recognition)
 }

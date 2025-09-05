@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,43 +27,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 import com.example.imagetotextandroidapp.ui.screen.imageExtractor.ActionButton
 
 @Composable
 fun ExtractedTextScreen(
     navHostController: NavHostController,
-    viewModel: ExtractedTextViewModel = hiltViewModel()
+    sharedViewModel: SharedViewModel,
 ) {
-    ExtractedTextContent(viewModel)
+    val  viewModel: ExtractedTextViewModel = hiltViewModel()
+    ExtractedTextContent(viewModel,sharedViewModel)
 }
 
 @Composable
 fun ExtractedTextContent(
-    viewModel: ExtractedTextViewModel
+    viewModel: ExtractedTextViewModel,
+    sharedViewModel: SharedViewModel
 ) {
-    val extractedText = remember { mutableStateOf("Extracted text will appear here.") }
+    val extractedText = sharedViewModel.textFromImage.observeAsState()
     Column(
         modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ){
-        /*to do next*/
-        // Extracted Text Box
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = "Extracted Text:",
+                text = extractedText.value.toString(),
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(4.dp))
-            TextField(
-                value = extractedText.value,
-                onValueChange = { extractedText.value = it },
-                placeholder = { Text("Your extracted text will appear here...") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-            )
         }
         // Action Buttons
         Row(
@@ -72,23 +66,7 @@ fun ExtractedTextContent(
         ) {
             ActionButton(icon = Icons.Filled.ThumbUp, label = "Copy") { /* after copy image shold bw changed Copy */ }
             ActionButton(icon = Icons.Filled.Share, label = "Share") { /* Share */ }
-            ActionButton(icon = Icons.Filled.Refresh, label = "Try Again") { /* go back to select a new image as new app will opened */ }
+            ActionButton(icon = Icons.Filled.Refresh, label = "Try Again") { /* Try Again */ }
         }
     }
 }
-
-@Preview
-@Composable
-fun ExtractedTextScreenPreview() {
-    val navHostController = NavHostController(LocalContext.current)
-    val viewModel = ExtractedTextViewModel()
-    ExtractedTextScreen(navHostController, viewModel)
-}
-
-@Preview
-@Composable
-fun ExtractedTextContentPreview() {
-    val viewModel = ExtractedTextViewModel()
-    ExtractedTextContent(viewModel)
-}
-
