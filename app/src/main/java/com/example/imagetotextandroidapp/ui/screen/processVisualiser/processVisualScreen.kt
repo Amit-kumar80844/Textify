@@ -76,9 +76,11 @@ fun ProcessForImage(navHostController: NavHostController,sharedViewModel: Shared
             val extractedText by processVisualViewModel.extractedText.collectAsState()
             LaunchedEffect(Unit) {
                 sharedViewModel.updateTextFromImage(extractedText)
-                navHostController.popBackStack()
                 Log.d("SuccessScreen", "Extracted Text: $extractedText")
-                navHostController.navigate(NavGraph.ExtractedText.route)
+                navHostController.navigate(NavGraph.ExtractedText.route){
+                    popUpTo("ProcessVisualiser") { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }

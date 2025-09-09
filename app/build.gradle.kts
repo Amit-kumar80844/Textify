@@ -100,6 +100,13 @@ dependencies {
 
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.coil.compose)
-
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(libs.text.recognition)
+
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
+
+
+
 }

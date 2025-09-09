@@ -110,9 +110,13 @@ fun CropScreenMain(
                 onCropComplete = { croppedBitmap ->
                     viewModel.setCapturedImage(croppedBitmap) { bitmap ->
                         sharedViewModel.setImage(bitmap)
+                        // It's generally safer to perform navigation actions after state updates
+                        // have been processed. Consider if this navigation should be within the callback
+                        // or if the state update is guaranteed to complete before navigation.
+                        navHostController.popBackStack()
+                        viewModel.navigateToProcessScreen(navHostController)
                         Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
                     }
-                    viewModel.navigateToProcessScreen(navHostController)
                 },
                 onCancel = {
                     navHostController.popBackStack()
@@ -211,7 +215,6 @@ fun CroppedImagePreview(
 ) {
     Column(
         modifier = modifier.fillMaxSize()
-
     ) {
         // Header
         Text(
@@ -261,7 +264,6 @@ fun CroppedImagePreview(
 @Composable
 fun CroppedImageActionButtons(
     onAccept: () -> Unit,
-
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {

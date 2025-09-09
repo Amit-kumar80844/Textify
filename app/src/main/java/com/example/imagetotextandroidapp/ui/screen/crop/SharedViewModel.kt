@@ -31,4 +31,8 @@ class SharedViewModel @Inject constructor() : ViewModel() {
     fun getCapturedImage(): Bitmap? {
         return _capturedImage.value
     }
+    fun clearAll(){
+        _capturedImage.value = null
+        _textFromImage.value = ""
+    }
 }
