@@ -17,9 +17,16 @@ import javax.inject.Inject
 
 sealed class ImageState(){
     object IsIdle: ImageState()
+    object IsLoading: ImageState()
     object IsImageSelecting: ImageState()
     object IsImageSelected: ImageState()
+    object IsPreviousText: ImageState()
 }
+
+/*
+* state management is not good make  in imageextracton screen make it better
+* also have state something in prev screen
+* */
 
 @HiltViewModel
 class ImageExtractionViewModel @Inject constructor(

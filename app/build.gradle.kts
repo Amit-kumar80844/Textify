@@ -107,6 +107,8 @@ dependencies {
     implementation("androidx.room:room-ktx:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")
 
-
-
+    implementation("androidx.compose.material3:material3:1.3.2")
+    implementation("androidx.compose.material3:material3-window-size-class:1.3.2")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha04")
+    implementation("androidx.graphics:graphics-shapes:1.0.1")
 }

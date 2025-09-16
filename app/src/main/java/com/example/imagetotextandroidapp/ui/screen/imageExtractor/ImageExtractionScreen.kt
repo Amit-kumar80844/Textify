@@ -9,7 +9,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,31 +17,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,7 +48,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.ui.navigation.NavGraph
 import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
+import com.example.imagetotextandroidapp.ui.screen.lodingScreen.LoadingScreen
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel: SharedViewModel) {
@@ -86,13 +78,24 @@ fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel:
                 navHostController.navigate(NavGraph.CropScreen.route)
             }
         }
+        is ImageState.IsLoading -> {
+            LoadingScreen(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            )
+        }
+        is ImageState.IsPreviousText -> {
+            LaunchedEffect(Unit) {
+                navHostController.navigate(NavGraph.PreviousText.route)
+                viewModel.setImageState(ImageState.IsIdle)
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageExtractionViewModel) {
-    val extractedText = remember { mutableStateOf("Extracted text will appear here.") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -209,87 +212,23 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Extract Text Button
+            // Prev Extracted Text Button
             Button(
-                onClick = { /* Extract text */ },
+                onClick = {
+                    viewModel.setImageState(ImageState.IsPreviousText)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .height(48.dp)
                     .fillMaxWidth(0.8f)
             ) {
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Extract Text", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Extracted Text Box
-            Column(modifier = Modifier.fillMaxWidth(0.8f)) {
-                Text(
-                    text = "Extracted Text:",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                TextField(
-                    value = extractedText.value,
-                    onValueChange = { extractedText.value = it },
-                    placeholder = { Text("Your extracted text will appear here...") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp),
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Action Buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                ActionButton(
-                    icon = Icons.Filled.ThumbUp,
-                    label = "Copy"
-                ) { /* after copy image should bw changed Copy */ }
-                ActionButton(icon = Icons.Filled.Share, label = "Share") { /* Share */ }
-                ActionButton(
-                    icon = Icons.Filled.Refresh,
-                    label = "Try Again"
-                ) { /* go back to select a new image as new app will opened */ }
+                Text(" Previous Text", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)
             }
         }
     }
 }
-
-@Composable
-fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant // Or MaterialTheme.colorScheme.primary for more emphasis
-        ),
-        modifier = Modifier
-            .wrapContentWidth(Alignment.CenterHorizontally)
-            .padding(8.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
 
 @Composable
 fun PickImage(
@@ -307,14 +246,13 @@ fun PickImage(
             }
         }
     )
-
-    // Use LaunchedEffect to ensure the launcher is fully initialized
     LaunchedEffect(Unit) {
         singlePhotoPickerLauncher.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         )
     }
 }
+
 @Composable
 @Preview
 fun AppPreview() {

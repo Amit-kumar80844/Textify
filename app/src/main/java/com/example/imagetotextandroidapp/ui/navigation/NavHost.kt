@@ -13,6 +13,7 @@ import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 import com.example.imagetotextandroidapp.ui.screen.extractedText.ExtractedTextScreen
 import com.example.imagetotextandroidapp.ui.screen.imageExtractor.ImageExtractionScreen
 import com.example.imagetotextandroidapp.ui.screen.imagePreview.ImagePreviewScreen
+import com.example.imagetotextandroidapp.ui.screen.previousText.PreviousTextScreen
 import com.example.imagetotextandroidapp.ui.screen.processVisualiser.ProcessForImage
 import com.example.imagetotextandroidapp.ui.screen.splash.SplashScreen
 
@@ -45,6 +46,9 @@ fun Navigate(
         }
         composable(route = NavGraph.ImagePreview.route) {
             ImagePreviewScreen(navHostController, sharedImageViewModel)
+        }
+        composable(route = NavGraph.PreviousText.route) {
+            PreviousTextScreen(navHostController)
         }
     }
 }
