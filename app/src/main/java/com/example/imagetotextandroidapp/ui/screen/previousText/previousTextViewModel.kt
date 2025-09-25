@@ -83,6 +83,10 @@ class PreviousTextViewModel @Inject constructor(
          }
      }
 
+    fun setNavigateBack() {
+        _previousTextState.value = PreviousTextState.NavigateBack
+    }
+
     fun loadingState() {
         _previousTextState.value = PreviousTextState.Loading
     }

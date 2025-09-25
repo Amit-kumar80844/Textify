@@ -33,6 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -45,6 +48,7 @@ import androidx.core.graphics.createBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
+import com.example.imagetotextandroidapp.ui.screen.lodingScreen.LoadingScreen
 import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -110,9 +114,6 @@ fun CropScreenMain(
                 onCropComplete = { croppedBitmap ->
                     viewModel.setCapturedImage(croppedBitmap) { bitmap ->
                         sharedViewModel.setImage(bitmap)
-                        // It's generally safer to perform navigation actions after state updates
-                        // have been processed. Consider if this navigation should be within the callback
-                        // or if the state update is guaranteed to complete before navigation.
                         navHostController.popBackStack()
                         viewModel.navigateToProcessScreen(navHostController)
                         Log.d("CropScreen", "Cropped image set, navigating to ImagePreview")
@@ -172,17 +173,30 @@ fun CropScreen(
         }
 // we have here the cropped image
         is CropState.Success -> {
-            croppedImage?.let { bitmap ->
-                CroppedImagePreview(
-                    croppedBitmap = bitmap,
-                    onAccept = {
-                        onCropComplete(bitmap)
-                    },
-                    onRetry = {
-                        viewModel.resetCrop()
-                    },
-                    onCancel = onCancel
+            var loading by remember{ mutableStateOf(true) }
+            LaunchedEffect(Unit) {
+                delay(1000)
+                loading = false
+            }
+            if(loading){
+                LoadingScreen(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
                 )
+            }else{
+                croppedImage?.let { bitmap ->
+                    CroppedImagePreview(
+                        croppedBitmap = bitmap,
+                        onAccept = {
+                            onCropComplete(bitmap)
+                        },
+                        onRetry = {
+                            viewModel.resetCrop()
+                        },
+                        onCancel = onCancel
+                    )
+                }
             }
         }
 

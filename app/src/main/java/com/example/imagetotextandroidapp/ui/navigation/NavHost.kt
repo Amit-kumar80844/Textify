@@ -24,7 +24,7 @@ fun Navigate(
 ) {
     val sharedImageViewModel: SharedViewModel = hiltViewModel()
 
-    NavHost(navController = navHostController, startDestination = NavGraph.ImageExtractor.route) {
+    NavHost(navController = navHostController, startDestination = NavGraph.Splash.route) {
         composable(route = NavGraph.Splash.route) {
             SplashScreen(navHostController)
         }

@@ -4,7 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,33 +17,36 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.ui.navigation.NavGraph
@@ -53,55 +56,73 @@ import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun ImageExtractionScreen(navHostController: NavHostController, sharedViewModel: SharedViewModel) {
+fun ImageExtractionScreen(
+    navHostController: NavHostController,
+    sharedViewModel: SharedViewModel
+) {
     val viewModel: ImageExtractionViewModel = hiltViewModel()
-    val imageState by viewModel.imageState.observeAsState(ImageState.IsIdle)
+    val imageState by viewModel.imageState.observeAsState(ImageState.IsLoading)
+    val context = LocalContext.current
 
+    LaunchedEffect(key1 = imageState) {
+        if (imageState == ImageState.IsLoading) {
+            delay(500)
+            viewModel.setImageState(ImageState.IsIdle)
+        }
+    }
+
+    LaunchedEffect(key1 = imageState) {
+        when (imageState) {
+            is ImageState.IsImageSelected -> {
+                val bitmap = viewModel.selectImageUri?.let {
+                    viewModel.uriToBitmap(it, context)
+                }
+                bitmap?.let {
+                    sharedViewModel.setImage(it)
+                    viewModel.setImageState(ImageState.IsIdle)
+                    navHostController.navigate(NavGraph.CropScreen.route)
+                }
+            }
+
+            is ImageState.IsPreviousText -> {
+                viewModel.setImageState(ImageState.IsLoading)
+                navHostController.navigate(NavGraph.PreviousText.route)
+            }
+
+            else -> Unit // No-op
+        }
+    }
+
+    // UI Rendering
     when (imageState) {
         is ImageState.IsIdle -> {
             TextExtractorScreen(navHostController, viewModel)
         }
+
         is ImageState.IsImageSelecting -> {
-     /*       val context = LocalContext.current*/
-            PickImage(viewModel = viewModel/*, context = context*/)
+            PickImage(viewModel = viewModel)
         }
-        is ImageState.IsImageSelected -> {
-            val context = LocalContext.current
-            LaunchedEffect(Unit) {
-                sharedViewModel.setImage(
-                    viewModel.selectImageUri?.let {
-                        viewModel.uriToBitmap(it, context)
-                    } ?: return@LaunchedEffect
-                )
-                // Reset state to idle after setting the image
-                viewModel.setImageState(ImageState.IsIdle)
-                navHostController.navigate(NavGraph.CropScreen.route)
-            }
-        }
+
         is ImageState.IsLoading -> {
             LoadingScreen(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             )
         }
-        is ImageState.IsPreviousText -> {
-            LaunchedEffect(Unit) {
-                navHostController.navigate(NavGraph.PreviousText.route)
-                viewModel.setImageState(ImageState.IsIdle)
-            }
-        }
+        else -> Unit
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageExtractionViewModel) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Sticky Header
         TopAppBar(
             title = {
                 Text(
@@ -111,15 +132,6 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = { /* Handle back */ }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
             }
         )
         Column(
@@ -234,6 +246,21 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
 fun PickImage(
     viewModel: ImageExtractionViewModel
 ) {
+    var loading by remember { mutableStateOf(false) }
+    LaunchedEffect(
+        Unit
+    ) {
+        loading = true
+        delay(1300)
+        loading = false
+    }
+    if (loading) {
+        LoadingScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        )
+    }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->

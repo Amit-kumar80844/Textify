@@ -33,10 +33,6 @@ class CropScreenViewModel @Inject constructor() : ViewModel() {
         cropState = CropState.Error(error)
     }
 
-    fun startCropping() {
-        cropState = CropState.Cropping
-    }
-
     fun resetCrop() {
         croppedImage = null
         cropState = CropState.Cropping
@@ -49,7 +45,6 @@ class CropScreenViewModel @Inject constructor() : ViewModel() {
     }
     fun navigateToProcessScreen(navHostController: NavHostController){
         cropState = CropState.Cropping
-        navHostController.popBackStack()
         navHostController.navigate("ProcessVisualiser")
     }
 }

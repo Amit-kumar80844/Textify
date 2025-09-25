@@ -1,6 +1,9 @@
 package com.example.imagetotextandroidapp.ui.screen.processVisualiser
 
 import android.util.Log
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,44 +43,74 @@ import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
 import com.example.imagetotextandroidapp.ui.navigation.NavGraph
 import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
+import com.example.imagetotextandroidapp.ui.screen.lodingScreen.LoadingScreen
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProcessForImage(navHostController: NavHostController,sharedViewModel: SharedViewModel) {
-    val  processVisualViewModel: ProcessVisualViewModel = hiltViewModel()
+fun ProcessForImage(
+    navHostController: NavHostController,
+    sharedViewModel: SharedViewModel
+) {
+    val processVisualViewModel: ProcessVisualViewModel = hiltViewModel()
     val uiState by processVisualViewModel.uiState.collectAsState()
-    when (uiState) {
+    val extractedText by processVisualViewModel.extractedText.collectAsState()
+
+    when (val state = uiState){
         is ProcessVisualState.Progress -> {
-            val progressValue = (uiState as ProcessVisualState.Progress).value
-            LaunchedEffect(Unit) {
-                processVisualViewModel.processImageToText(sharedViewModel.capturedImage.value!!)
+            val progressValue = state.value
+
+            val capturedImage = sharedViewModel.capturedImage.value
+            LaunchedEffect(capturedImage) {
+                capturedImage?.let {
+                    processVisualViewModel.processImageToText(it)
+                }
             }
+
             LaunchedEffect(progressValue) {
                 if (progressValue >= 1.0f) {
                     processVisualViewModel.processSuccess()
                 }
             }
+
             ProcessVisualScreen(processVisualViewModel)
         }
-        is ProcessVisualState.IsCancel -> {
-            processVisualViewModel.cancelProcess()
-            navHostController.popBackStack()
-        }
 
-        is ProcessVisualState.IsError -> {
-            val errorMessage = (uiState as ProcessVisualState.IsError).value
-            ErrorScreen(errorMessage)
+        is ProcessVisualState.IsCancel -> {
+            var loading by remember { mutableStateOf(true) }
+
+            if (loading) {
+                LoadingScreen(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                )
+            }
+
             LaunchedEffect(Unit) {
-                delay(3000)
+                sharedViewModel.clearAll()
+                delay(1000)
+                navHostController.popBackStack(
+                    route = NavGraph.ImageExtractor.route,
+                    inclusive = false
+                )
+                loading = false
+            }
+        }
+        is ProcessVisualState.IsError -> {
+            ErrorScreen(state.message)
+            sharedViewModel.clearAll()
+            LaunchedEffect(Unit) {
+                delay(2000)
                 navHostController.popBackStack()
             }
         }
+
         is ProcessVisualState.IsSuccess -> {
-            val extractedText by processVisualViewModel.extractedText.collectAsState()
-            LaunchedEffect(Unit) {
+            LaunchedEffect(extractedText) {
                 sharedViewModel.updateTextFromImage(extractedText)
                 Log.d("SuccessScreen", "Extracted Text: $extractedText")
-                navHostController.navigate(NavGraph.ExtractedText.route){
+
+                navHostController.navigate(NavGraph.ExtractedText.route) {
                     popUpTo("ProcessVisualiser") { inclusive = true }
                     launchSingleTop = true
                 }
@@ -136,10 +169,25 @@ fun ProcessVisualScreenPreview() {
     ProcessVisualScreen(processVisualViewModel = processVisualViewModel)
 }
 
-
 @Composable
-fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
-    val progress by processVisualViewModel.progress.collectAsState()
+fun LinearDeterminateIndicator(
+    processVisualViewModel: ProcessVisualViewModel
+) {
+    // Collect progress from ViewModel
+    val uiState by processVisualViewModel.uiState.collectAsState()
+    val progress = when (val state = uiState) {
+        is ProcessVisualState.Progress -> state.value
+        else -> 0f
+    }
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = LinearOutSlowInEasing
+        ),
+        label = "progressAnimation"
+    )
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -147,17 +195,18 @@ fun LinearDeterminateIndicator(processVisualViewModel: ProcessVisualViewModel) {
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-          LinearProgressIndicator(
-                progress = { progress},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                gapSize = 0.dp
-          )
+        LinearProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+            gapSize = 0.dp
+        )
     }
 }
+
 
 @Composable
 fun CustomText() {

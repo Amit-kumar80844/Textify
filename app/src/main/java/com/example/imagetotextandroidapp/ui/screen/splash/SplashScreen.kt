@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(

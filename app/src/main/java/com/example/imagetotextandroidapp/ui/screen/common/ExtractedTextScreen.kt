@@ -21,6 +21,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.imagetotextandroidapp.ui.screen.lodingScreen.LoadingScreen
+import kotlinx.coroutines.delay
 
 
 /**
@@ -42,44 +49,68 @@ fun ExtractedTextContent(
     onDoneClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
+    var loading by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        delay(1000)
+        loading = false
+    }
+    if (loading) {
+        LoadingScreen(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        )
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Extracted Text",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = extractedText,
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = "Extracted Text",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = extractedText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Changed icon to ContentCopy for better UX.
-            ActionButton(icon = Icons.Default.ContentCopy, label = "Copy") { onCopyClick(extractedText) }
-            ActionButton(icon = Icons.Filled.Share, label = "Share") { onShareClick(extractedText) }
-            ActionButton(icon = Icons.Filled.Done, label = "Done") { onDoneClick(extractedText) }
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Changed icon to ContentCopy for better UX.
+                ActionButton(icon = Icons.Default.ContentCopy, label = "Copy") {
+                    onCopyClick(
+                        extractedText
+                    )
+                }
+                ActionButton(icon = Icons.Filled.Share, label = "Share") {
+                    onShareClick(
+                        extractedText
+                    )
+                }
+                ActionButton(
+                    icon = Icons.Filled.Done,
+                    label = "Done"
+                ) { onDoneClick(extractedText) }
+            }
         }
     }
 }

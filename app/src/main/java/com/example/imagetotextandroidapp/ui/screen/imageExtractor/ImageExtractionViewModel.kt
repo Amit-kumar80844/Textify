@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.serialization.Serializable
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -22,11 +21,6 @@ sealed class ImageState(){
     object IsImageSelected: ImageState()
     object IsPreviousText: ImageState()
 }
-
-/*
-* state management is not good make  in imageextracton screen make it better
-* also have state something in prev screen
-* */
 
 @HiltViewModel
 class ImageExtractionViewModel @Inject constructor(

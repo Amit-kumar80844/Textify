@@ -18,11 +18,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -53,8 +57,14 @@ fun PreviousTextScreen(navHostController: NavHostController) {
              .background(MaterialTheme.colorScheme.background)
    ) {
        when(val state = previousTextState){
-           PreviousTextState.Loading -> {
+           is PreviousTextState.Loading -> {
+               LoadingScreen(
+                   modifier = Modifier
+                       .fillMaxSize()
+                       .background(MaterialTheme.colorScheme.background)
+               )
                LaunchedEffect(Unit) {
+                   delay(700)
                    viewModel.fetchPreviousTexts()
                }
            }
@@ -74,7 +84,10 @@ fun PreviousTextScreen(navHostController: NavHostController) {
                            coroutineScope.launch {
                                viewModel.deleteText(textToDelete.id)
                            }
-                       }
+                       },
+                          onBackClick = {
+                              viewModel.setNavigateBack()
+                          }
                    )
            }
            is PreviousTextState.Error -> {
@@ -90,34 +103,43 @@ fun PreviousTextScreen(navHostController: NavHostController) {
                        viewModel.noTextState()
                    }
                }
-               ExtractedTextContent(
-                   extractedText = text?.text ?: "",
-                   onCopyClick = { copiedText ->
-                       clipboardManager.setText(AnnotatedString(copiedText))
-                       Toast.makeText(context, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
-                   },
-                   onShareClick = { sharedText ->
-                       val sendIntent = Intent().apply {
-                           action = Intent.ACTION_SEND
-                           putExtra(Intent.EXTRA_TEXT, sharedText)
-                           type = "text/plain"
-                       }
-                       val shareIntent = Intent.createChooser(sendIntent, null)
-                       context.startActivity(shareIntent)
-                   },
-                   onDoneClick = {
-                       coroutineScope.launch {
-                           viewModel.loadingState()
-                           delay(2000)
-                           viewModel.successState("Back to list")
-                       }
-                   },
-                   modifier = Modifier.weight(1f)
-               )
+               else{
+                   ExtractedTextContent(
+                       extractedText = text?.text ?: "",
+                       onCopyClick = { copiedText ->
+                           clipboardManager.setText(AnnotatedString(copiedText))
+                           Toast.makeText(context, "Text copied to clipboard", Toast.LENGTH_SHORT)
+                               .show()
+                       },
+                       onShareClick = { sharedText ->
+                           val sendIntent = Intent().apply {
+                               action = Intent.ACTION_SEND
+                               putExtra(Intent.EXTRA_TEXT, sharedText)
+                               type = "text/plain"
+                           }
+                           val shareIntent = Intent.createChooser(sendIntent, null)
+                           context.startActivity(shareIntent)
+                       },
+                       onDoneClick = {
+                          viewModel.loadingState()
+                       },
+                       modifier = Modifier.weight(1f)
+                   )
+               }
            }
            PreviousTextState.NavigateBack -> {
+               var loading  by remember{mutableStateOf(true)}
+                if(loading){
+                     LoadingScreen(
+                         modifier = Modifier
+                             .fillMaxSize()
+                             .background(MaterialTheme.colorScheme.background)
+                     )
+                }
                LaunchedEffect(Unit) {
                    navHostController.popBackStack()
+                   delay(1000)
+                   loading = false
                }
            }
        }
@@ -137,13 +159,23 @@ fun AppPreview() {
 fun PreviousTextList(
     texts: List<TextData>,
     onTextClick: (TextData) -> Unit,
-    onDeleteClick: (TextData) -> Unit = {}
+    onDeleteClick: (TextData) -> Unit = {},
+    onBackClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary),
         topBar = {
             TopAppBar(
-                title = { Text("Previous Texts", fontWeight = FontWeight.Bold) }
+                title = { Text("Previous Saved Texts", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
@@ -241,7 +273,7 @@ fun ErrorScreen(message: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme .colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
