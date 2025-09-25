@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.imagetotextandroidapp" />
+                  <option name="mobileSdkAppId" value="1:1025106350723:android:7f4c9f2879dc2df8fd41b6" />
+                  <option name="projectId" value="textify-f7e10" />
+                  <option name="projectNumber" value="1025106350723" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

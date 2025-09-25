@@ -19,15 +19,6 @@ class Permission @Inject constructor(
         }.toTypedArray()
     }
 
-    fun requestStoragePermission(): Array<String> {
-        return STORAGE_PERMISSION.filter {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) != PackageManager.PERMISSION_GRANTED
-        }.toTypedArray()
-    }
-
     fun hasCameraPermission(): Boolean {
         return CAMERA_PERMISSION.all {
             ContextCompat.checkSelfPermission(
@@ -37,21 +28,9 @@ class Permission @Inject constructor(
         }
     }
 
-    fun hasStoragePermission(): Boolean {
-        return STORAGE_PERMISSION.all {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-    }
     companion object {
         private val CAMERA_PERMISSION = arrayOf(
             Manifest.permission.CAMERA
-        )
-        private val STORAGE_PERMISSION = arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
         )
     }
 }

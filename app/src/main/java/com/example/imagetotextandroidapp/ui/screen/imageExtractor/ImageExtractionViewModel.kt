@@ -23,9 +23,7 @@ sealed class ImageState(){
 }
 
 @HiltViewModel
-class ImageExtractionViewModel @Inject constructor(
-    private val permission: Permission
-) : ViewModel() {
+class ImageExtractionViewModel @Inject constructor() : ViewModel() {
     private val _imageState = MutableLiveData<ImageState>(ImageState.IsIdle)
     val imageState: LiveData<ImageState> get() = _imageState
 
@@ -33,15 +31,6 @@ class ImageExtractionViewModel @Inject constructor(
         _imageState.value = state
     }
     var selectImageUri: Uri? by mutableStateOf(null)
-
-    fun manageCameraPermission(){
-        if(!permission.hasCameraPermission()){
-            permission.requestCameraPermission()
-        }
-    }
-    fun hasCameraPermission(): Boolean {
-        return permission.hasCameraPermission()
-    }
     /**
      * Convert URI to Bitmap
      */

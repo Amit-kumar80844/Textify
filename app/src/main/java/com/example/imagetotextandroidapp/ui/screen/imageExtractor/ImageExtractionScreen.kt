@@ -54,6 +54,14 @@ import com.example.imagetotextandroidapp.ui.screen.crop.SharedViewModel
 import com.example.imagetotextandroidapp.ui.screen.lodingScreen.LoadingScreen
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
 import kotlinx.coroutines.delay
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.core.app.ActivityCompat
+import android.content.Intent
+import android.provider.Settings
+import android.net.Uri
 
 @Composable
 fun ImageExtractionScreen(
@@ -117,6 +125,74 @@ fun ImageExtractionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageExtractionViewModel) {
+    // Camera permission state
+    var hasCameraPermission by remember { mutableStateOf(false) }
+    var showRationale by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val activity = context as? androidx.activity.ComponentActivity
+
+    // Check initial permission state
+    LaunchedEffect(Unit) {
+        hasCameraPermission = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+        if (isGranted) {
+            // Navigate to camera preview if permission is granted
+            showRationale = false
+            navHostController.navigate(NavGraph.CameraPreview.route)
+        } else {
+            // Check if we should show rationale or if permission is permanently denied
+            val shouldShowRationale = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    it,
+                    android.Manifest.permission.CAMERA
+                )
+            } ?: false
+
+            if (shouldShowRationale) {
+                showRationale = true
+            } else {
+                // Permission permanently denied, show settings dialog
+                showSettingsDialog = true
+            }
+        }
+    }
+
+    // Function to handle camera button click
+    fun handleCameraClick() {
+        when {
+            hasCameraPermission -> {
+                // Permission already granted, navigate to camera
+                navHostController.navigate(NavGraph.CameraPreview.route)
+            }
+            else -> {
+                // Check if we should show rationale first
+                val shouldShowRationale = activity?.let {
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        it,
+                        android.Manifest.permission.CAMERA
+                    )
+                } ?: false
+
+                if (shouldShowRationale) {
+                    showRationale = true
+                } else {
+                    // Request permission directly
+                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -138,18 +214,19 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .background(MaterialTheme.colorScheme.surface) // Use surface for a cohesive background
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Select an image from your gallery or take a new photo to extract text.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant, // Slightly less prominent than onSurface
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -179,11 +256,7 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
                 }
 
                 OutlinedButton(
-                    onClick = {
-                        viewModel.manageCameraPermission()
-                        if (viewModel.hasCameraPermission())
-                            navHostController.navigate(NavGraph.CameraPreview.route)
-                    },
+                    onClick = { handleCameraClick() },
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
@@ -201,26 +274,7 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
-            // Image Preview
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .aspectRatio(16f / 9f)
-                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-                    .background(
-                        MaterialTheme.colorScheme.surfaceVariant,
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Filled.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(48.dp)
-                )
-            }
+            TestBannerAd()
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -240,8 +294,108 @@ fun TextExtractorScreen(navHostController: NavHostController, viewModel: ImageEx
             }
         }
     }
-}
 
+    // Permission Rationale Dialog
+    if (showRationale) {
+        AlertDialog(
+            onDismissRequest = { showRationale = false },
+            title = {
+                Text(
+                    "Camera Permission Required",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    "This app needs camera permission to take photos for text extraction. Please grant the permission to continue.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRationale = false
+                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
+                ) {
+                    Text(
+                        "Grant Permission",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showRationale = false }
+                ) {
+                    Text(
+                        "Cancel",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp
+        )
+    }
+
+    // Settings Dialog (when permission is permanently denied)
+    if (showSettingsDialog) {
+        AlertDialog(
+            onDismissRequest = { showSettingsDialog = false },
+            title = {
+                Text(
+                    "Permission Permanently Denied",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    "Camera permission has been permanently denied. Please enable it manually in Settings > Apps > [App Name] > Permissions.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSettingsDialog = false
+                        // Open app settings
+                        try {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {
+                            // Fallback to general settings if specific app settings fail
+                            context.startActivity(Intent(Settings.ACTION_SETTINGS))
+                        }
+                    }
+                ) {
+                    Text(
+                        "Open Settings",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showSettingsDialog = false }
+                ) {
+                    Text(
+                        "Cancel",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp
+        )
+    }
+}
 @Composable
 fun PickImage(
     viewModel: ImageExtractionViewModel

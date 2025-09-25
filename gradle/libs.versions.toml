@@ -20,6 +20,8 @@ navigationCompose = "2.9.2"
 opencvAndroid = "4.8.0"
 textRecognition = "16.0.1"
 ucrop = "2.2.8"
+googleGmsGoogleServices = "4.4.3"
+playServicesAds = "24.6.0"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
@@ -53,7 +55,9 @@ kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-cor
 opencv-android = { module = "org.opencv:opencv-android", version.ref = "opencvAndroid" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
 ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
