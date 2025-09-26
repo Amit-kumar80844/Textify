@@ -21,11 +21,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.imagetotextandroidapp.R
 import com.example.imagetotextandroidapp.ui.theme.ImageTOTextAndroidAppTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
@@ -39,7 +37,7 @@ fun SplashScreen(
             }
         }
     }
-        SplashScreenContent()
+     SplashScreenContent()
 }
 
 @Composable
@@ -73,6 +71,7 @@ fun SplashScreenContent() {
         }
     }
 }
+
 @Composable
 @Preview
 fun SplashScreenPreview1() {

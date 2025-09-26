@@ -22,6 +22,7 @@ textRecognition = "16.0.1"
 ucrop = "2.2.8"
 googleGmsGoogleServices = "4.4.3"
 playServicesAds = "24.6.0"
+coreSplashscreen = "1.0.1"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
@@ -56,6 +57,7 @@ opencv-android = { module = "org.opencv:opencv-android", version.ref = "opencvAn
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
 ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

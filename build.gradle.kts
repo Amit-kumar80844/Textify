@@ -12,6 +12,7 @@ plugins {
 
 // Apply to all submodules
 subprojects {
+    apply(plugin = "com.google.gms.google-services")
     plugins.withId("org.jetbrains.kotlin.android") {
         extensions.configure<KotlinProjectExtension>("kotlin") {
             jvmToolchain(17)
