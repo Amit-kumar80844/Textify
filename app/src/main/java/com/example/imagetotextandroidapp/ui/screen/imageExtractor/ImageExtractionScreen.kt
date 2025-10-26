@@ -97,26 +97,32 @@ fun ImageExtractionScreen(
             else -> Unit
         }
     }
+   Box(
+       modifier = Modifier
+           .fillMaxSize()
+           .background(MaterialTheme.colorScheme.background)
+   ) {
+       // UI Rendering
+       when (imageState) {
+           is ImageState.IsIdle -> {
+               TextExtractorScreen(navHostController, viewModel)
+           }
 
-    // UI Rendering
-    when (imageState) {
-        is ImageState.IsIdle -> {
-            TextExtractorScreen(navHostController, viewModel)
-        }
+           is ImageState.IsImageSelecting -> {
+               PickImage(viewModel = viewModel)
+           }
 
-        is ImageState.IsImageSelecting -> {
-            PickImage(viewModel = viewModel)
-        }
+           is ImageState.IsLoading -> {
+               LoadingScreen(
+                   modifier = Modifier
+                       .fillMaxSize()
+                       .background(MaterialTheme.colorScheme.background)
+               )
+           }
 
-        is ImageState.IsLoading -> {
-            LoadingScreen(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-            )
-        }
-        else -> Unit
-    }
+           else -> Unit
+       }
+   }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
