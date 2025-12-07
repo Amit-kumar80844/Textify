@@ -1,135 +1,66 @@
-# ImageTOTextAndroidApp
+📸 ImageToText Android App (OCR)
 
-ImageTOTextAndroidApp is an Android app (Jetpack Compose) that captures images, allows simple cropping/editing, and extracts text from images (OCR). The project uses modern Android libraries such as CameraX, Jetpack Compose, Hilt, Coil, Room, and ML Kit / Text Recognition.
+ImageToText is a modern Android application built with Jetpack Compose that captures images, provides basic cropping/editing, and extracts text using Optical Character Recognition (OCR).
+The app leverages Google ML Kit Text Recognition and follows modern Android architecture and best practices to deliver a clean, scalable, and performant solution.
 
-> This README was generated from the project files. It summarizes detected features and provides setup and troubleshooting guidance.
+🚀 Features
 
-## Key features
+📷 Capture images using CameraX
 
-- Camera capture using CameraX (Preview + ImageCapture + Lifecycle integration)
-- Crop UI integration (uCrop)
-- OCR / Text Recognition (ML Kit or similar text recognition library)
-- Image loading with Coil (Compose integration)
-- Local persistence with Room (stores previous extracted text)
-- Dependency injection with Hilt
-- Jetpack Compose UI and Navigation
-- AdMob integration (play-services-ads)
-- Project modularization: includes a local `:sdk` module
+✂️ Basic image cropping and editing
 
-## Technologies & Libraries (detected)
+🔍 Extract text from images using ML Kit OCR
 
-- Kotlin + Compose (Compose BOM)
-- CameraX (core, camera2, lifecycle, view)
-- Hilt (DI) + Hilt Navigation for Compose
-- Coil (coil-compose)
-- uCrop (image cropping)
-- Room (room-runtime / room-ktx)
-- ML Text Recognition (text recognition dependency detected)
-- AdMob (play-services-ads)
+💾 Store extracted text locally with Room Database
 
-(See `app/build.gradle.kts` for exact dependency declarations.)
+🖼️ Fast and efficient image loading using Coil
 
-## Project structure (recommended overview)
+💉 Dependency Injection with Hilt
 
-- `app/src/main/java/.../ui/screen/` — Composables for screens (Camera, Crop, ImagePreview, ExtractedText, etc.)
-- `app/src/main/java/.../viewmodel/` — ViewModels (MVVM)
-- `app/src/main/java/.../ui/navigation/` — Navigation host and graph
-- `app/src/main/java/.../repository/` — Data layer (Room, local storage, etc.)
-- `sdk/` — Local module used by the app
+⚡ Fully declarative UI using Jetpack Compose
 
-## Requirements
+🛠️ Tech Stack
 
-- Android Studio Flamingo or later (recommended)
-- JDK 17 (project configured with JVM toolchain 17)
-- Android SDK API 36 (compileSdk = 36)
-- Minimum Android API: 26 (minSdk = 26)
+Language: Kotlin
 
-## Setup & Build
+UI: Jetpack Compose
 
-1. Clone the repository:
+Camera: CameraX
 
-```bash
-git clone <your-repo-url>
-cd ImageTOTextAndroidApp
-```
+OCR: Google ML Kit – Text Recognition
 
-2. Open the project in Android Studio and let Gradle sync.
-3. If the build prompts for missing SDK components, install them via SDK Manager.
-4. Run on a device or emulator with a camera (recommended: a physical device for best CameraX behavior).
+Architecture: MVVM
 
-## Permissions
+Dependency Injection: Hilt
 
-The app interacts with camera and device images. Ensure you request and declare the correct permissions:
+Database: Room
 
-In `AndroidManifest.xml`:
+Image Loading: Coil
 
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-```
+🧩 Architecture Overview
 
-Request these at runtime (Android 6.0+). For Android 13+ use `READ_MEDIA_IMAGES`; for earlier versions use `READ_EXTERNAL_STORAGE`.
+This project follows a clean MVVM architecture:
 
-## Running the app
+UI (Jetpack Compose) → ViewModel → Repository → Room Database
 
-- Build and run from Android Studio (Select an Android device/emulator and Run).
-- Grant camera and storage/media permissions when the app requests them.
+Single Source of Truth
 
-## Typical usage flow
+Lifecycle-aware components
 
-1. Launch app — splash screen appears.
-2. Open camera screen to capture an image.
-3. Crop the captured image using the crop helper (uCrop integration).
-4. App runs OCR (text recognition) on the cropped image and shows extracted text.
-5. Optionally save or view previous extracted text (Room DB).
+Clear separation of concerns for scalability and maintainability
 
-## Troubleshooting & Notes
+📦 APK Download
 
-- You may see vendor-specific logs such as:
+👉 Download the APK:
+🔗 https://drive.google.com/drive/folders/1ldnixN-hOK0O_vxekk3VNgsr86Otwm5u?usp=sharing
 
-```
-Failed to find provider info for com.oplus.statistics.provider
-```
+🎥 Demo Video
 
-  These originate from device/vendor analytics and are not caused by your app. They can generally be ignored.
+🔗 
 
-- If camera capture fails inside a Composable: ensure you construct camera controller with a valid Context inside Compose (use `val context = LocalContext.current` and pass that to `LifecycleCameraController(context)`).
+https://github.com/user-attachments/assets/4357f053-f63b-4cf2-afa4-188882817eb1
 
-- If you use Coil and see problems loading files/URIs, verify the URI format and required permissions. Prefer `content://` URIs returned by MediaStore or use `FileProvider` URIs when sharing files between components.
 
-- For Kotlin compiler / JVM target configuration the project uses JDK 17 and sets the Kotlin jvm target to 17 in Gradle Kotlin DSL. Keep your Android Studio and Kotlin plugin up to date.
 
-## Contributing
-
-- Follow the existing package and naming conventions (screens under `ui/screen`, ViewModels under `viewmodel`).
-- Keep composables small and stateless when possible. Put side-effects and long-running operations into ViewModels.
-- Add unit tests for ViewModels and integration tests for critical flows.
-
-## Useful commands
-
-Build debug APK:
-
-```bash
-./gradlew :app:assembleDebug
-```
-
-Run unit tests:
-
-```bash
-./gradlew test
-```
-
-Run instrumentation tests:
-
-```bash
-./gradlew connectedAndroidTest
-```
-
-## License
-
-Add a license file if you plan to make the repository public (MIT/Apache-2.0 recommended).
-
----
-
-If you want, I can expand this README with screenshots, a workflow GIF, or specific code snippets (how to capture images in ViewModel, runtime permission sample, or how to configure AdMob). Tell me which sections you'd like expanded.
+📱 Screenshots
+<p align="center"> <img src="https://github.com/user-attachments/assets/659d284c-8ece-4165-9373-781945ddc5bb" width="250"/> <img src="https://github.com/user-attachments/assets/1cb96aa2-6313-4ccf-8a54-b3eb9dd7d61e" width="250"/> <img src="https://github.com/user-attachments/assets/58bbcc79-ce32-46d1-b112-32c582d25bdf" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/82b30e7f-fcb2-4b81-b338-67be3af68d55" width="250"/> <img src="https://github.com/user-attachments/assets/69bda05d-b627-42b5-b987-7aee47a52914" width="250"/> <img src="https://github.com/user-attachments/assets/fbd0b64e-06bd-4d48-9cae-78c7f1f247f3" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/5c7820b1-3f76-45f6-8044-068cd0b8a788" width="250"/> </p>
