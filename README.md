@@ -1,3 +1,9 @@
+🎥 Demo Video
+
+🔗 https://github.com/user-attachments/assets/953ca14e-87c6-4700-bf4c-67f35cbe45ef
+
+
+
 📸 ImageToText Android App (OCR)
 
 ImageToText is a modern Android application built with Jetpack Compose that captures images, provides basic cropping/editing, and extracts text using Optical Character Recognition (OCR).
@@ -54,11 +60,6 @@ Clear separation of concerns for scalability and maintainability
 👉 Download the APK:
 🔗 https://drive.google.com/drive/folders/1ldnixN-hOK0O_vxekk3VNgsr86Otwm5u?usp=sharing
 
-🎥 Demo Video
-
-🔗 
-
-https://github.com/user-attachments/assets/4357f053-f63b-4cf2-afa4-188882817eb1
 
 
 
