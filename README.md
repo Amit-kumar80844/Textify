@@ -4,10 +4,21 @@
 
 
 
-📸 ImageToText Android App (OCR)
+📸 Textify Android App (OCR)
 
-ImageToText is a modern Android application built with Jetpack Compose that captures images, provides basic cropping/editing, and extracts text using Optical Character Recognition (OCR).
+Textify is a modern Android application built with Jetpack Compose that captures images, provides basic cropping/editing, and extracts text using Optical Character Recognition (OCR).
 The app leverages Google ML Kit Text Recognition and follows modern Android architecture and best practices to deliver a clean, scalable, and performant solution.
+
+📦 APK Download
+
+👉 Download the APK:
+🔗 https://drive.google.com/drive/folders/1ldnixN-hOK0O_vxekk3VNgsr86Otwm5u?usp=sharing
+
+
+
+
+📱 Screenshots
+<p align="center"> <img src="https://github.com/user-attachments/assets/659d284c-8ece-4165-9373-781945ddc5bb" width="250"/> <img src="https://github.com/user-attachments/assets/1cb96aa2-6313-4ccf-8a54-b3eb9dd7d61e" width="250"/> <img src="https://github.com/user-attachments/assets/58bbcc79-ce32-46d1-b112-32c582d25bdf" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/82b30e7f-fcb2-4b81-b338-67be3af68d55" width="250"/> <img src="https://github.com/user-attachments/assets/69bda05d-b627-42b5-b987-7aee47a52914" width="250"/> <img src="https://github.com/user-attachments/assets/fbd0b64e-06bd-4d48-9cae-78c7f1f247f3" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/5c7820b1-3f76-45f6-8044-068cd0b8a788" width="250"/> </p>
 
 🚀 Features
 
@@ -54,14 +65,3 @@ Single Source of Truth
 Lifecycle-aware components
 
 Clear separation of concerns for scalability and maintainability
-
-📦 APK Download
-
-👉 Download the APK:
-🔗 https://drive.google.com/drive/folders/1ldnixN-hOK0O_vxekk3VNgsr86Otwm5u?usp=sharing
-
-
-
-
-📱 Screenshots
-<p align="center"> <img src="https://github.com/user-attachments/assets/659d284c-8ece-4165-9373-781945ddc5bb" width="250"/> <img src="https://github.com/user-attachments/assets/1cb96aa2-6313-4ccf-8a54-b3eb9dd7d61e" width="250"/> <img src="https://github.com/user-attachments/assets/58bbcc79-ce32-46d1-b112-32c582d25bdf" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/82b30e7f-fcb2-4b81-b338-67be3af68d55" width="250"/> <img src="https://github.com/user-attachments/assets/69bda05d-b627-42b5-b987-7aee47a52914" width="250"/> <img src="https://github.com/user-attachments/assets/fbd0b64e-06bd-4d48-9cae-78c7f1f247f3" width="250"/> </p> <p align="center"> <img src="https://github.com/user-attachments/assets/5c7820b1-3f76-45f6-8044-068cd0b8a788" width="250"/> </p>
